@@ -109,7 +109,7 @@
           ${b.extra ? `<p class="rule-extra">${esc(b.extra)}</p>` : ''}
         </div>
         ${groups.map((g) => {
-          const d = g.items.find((i) => i.desc)?.desc;
+          const d = g.items.find((i) => i.seriesDesc)?.seriesDesc || g.items.find((i) => i.desc)?.desc;
           const sameJp = g.items.every((i) => i.jp === g.items[0].jp);
           const solo = sameJp && g.items.every((i) => i.zh === g.items[0].zh);
           return `<div class="series" data-series="${g.key}">
