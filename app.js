@@ -121,6 +121,7 @@
       html += `<section class="brand" id="${b.id}" data-brand="${b.id}">
         <div class="brand-head">
           <h2>${esc(b.name)}<small>${esc(b.place)}・${list.length} 品項</small></h2>
+          <div class="leaf-rule" aria-hidden="true"><svg><use href="#leaf"/></svg><svg><use href="#leaf"/></svg></div>
           <p class="brand-intro">${esc(b.intro)}</p>
           <div class="rule" data-rule="${b.id}"><span><strong>以箱為單位，1 箱即可訂購</strong></span><span class="rule-state"></span></div>
           ${b.extra ? `<p class="rule-extra">${esc(b.extra)}</p>` : ''}
