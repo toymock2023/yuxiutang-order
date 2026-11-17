@@ -7,5 +7,5 @@ window.SITE_CONFIG = {
   SHOW_PRICE: true,
 
   // 未達品牌起訂箱數時：true = 不能送出；false = 只提醒，仍可送出
-  ENFORCE_MIN: false,
+  ENFORCE_MIN: true,
 };

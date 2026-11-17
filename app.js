@@ -180,7 +180,7 @@
       ${CFG.SHOW_PRICE === false ? '' : `<dt class="big-l">日幣貨款</dt><dd class="big">${yen(t.yen)}</dd>`}
     </dl>
     <p class="o-note">${t.noWeight ? '風美庵尚無箱重資料，未計入預估總重。' : ''}台幣運費於到貨秤重後另行通知。</p>`;
-    if (alerts.length) html += `<ul class="o-alert" role="status">${alerts.map((a) => `<li>${esc(a)}</li>`).join('')}${CFG.ENFORCE_MIN ? '' : '<li>仍可送出，我們會與您確認是否併單。</li>'}</ul>`;
+    if (alerts.length) html += `<ul class="o-alert" role="status">${alerts.map((a) => `<li>${esc(a)}</li>`).join('')}${CFG.ENFORCE_MIN ? '<li>補足箱數後才能送出訂單。</li>' : '<li>仍可送出，我們會與您確認是否併單。</li>'}</ul>`;
     const blocked = CFG.ENFORCE_MIN && alerts.length > 0;
     html += `<form id="orderForm" novalidate>
       <div class="field">
@@ -222,6 +222,7 @@
   }
   async function submit() {
     if (sending) return;
+    if (CFG.ENFORCE_MIN && brands.some((b) => shortOf(b, totals()))) return;
     const cust = customer.trim().toUpperCase();
     custError = !cust ? '請輸入客戶編號。' : !/^[A-Z0-9\-_]{2,20}$/.test(cust) ? '客戶編號只能是英文字母、數字或連字號。' : '';
     submitError = '';
@@ -364,7 +365,14 @@
     document.querySelectorAll('.brand:not([hidden])').forEach((s) => { if (s.offsetTop <= y) cur = s.id; });
     document.querySelectorAll('.tab').forEach((t) => {
       const on = t.dataset.tab === cur;
-      if (on && t.getAttribute('aria-current') !== 'true') t.scrollIntoView({ block: 'nearest', inline: 'center' });
+      if (on && t.getAttribute('aria-current') !== 'true') {
+        // 只橫向捲動目錄列本身；用 scrollIntoView 會打斷頁面正在進行的捲動
+        const list = t.closest('.tabs-list');
+        if (list) {
+          const lr = list.getBoundingClientRect(), tr = t.getBoundingClientRect();
+          list.scrollTo({ left: list.scrollLeft + tr.left - lr.left - (lr.width - tr.width) / 2, behavior: 'auto' });
+        }
+      }
       t.setAttribute('aria-current', on ? 'true' : 'false');
     });
   }
