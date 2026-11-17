@@ -33,15 +33,41 @@
     const saved = JSON.parse(localStorage.getItem(STORE) || '{}');
     for (const [id, q] of Object.entries(saved)) if (byId.has(id) && q > 0) cart[id] = q;
   } catch (e) { /* 無法讀取就從空的開始 */ }
-  let customer = '';
-  try { customer = localStorage.getItem(STORE + '-cust') || ''; } catch (e) {}
+  // 訂購資料：客編、收件人、手機、地址（存在本機，下次免重填）
+  const FIELDS = [
+    { id: 'cust', label: '毓秀堂客戶編號', attrs: 'type="text" autocomplete="off" autocapitalize="characters" maxlength="20"', help: '毓秀堂提供給您的編號。不確定的話請洽業務。' },
+    { id: 'name', label: '收件人', attrs: 'type="text" autocomplete="name" maxlength="30"' },
+    { id: 'phone', label: '手機號碼', attrs: 'type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0912345678"' },
+    { id: 'addr', label: '地址', attrs: 'type="text" autocomplete="street-address" maxlength="120"', help: '請填完整收件地址，含縣市、區與門牌。' },
+  ];
+  const info = { cust: '', name: '', phone: '', addr: '' };
+  try {
+    info.cust = localStorage.getItem(STORE + '-cust') || '';
+    const savedInfo = JSON.parse(localStorage.getItem(STORE + '-info') || '{}');
+    for (const k of ['name', 'phone', 'addr']) if (typeof savedInfo[k] === 'string') info[k] = savedInfo[k];
+  } catch (e) {}
+  const cleanPhone = (v) => v.replace(/[\s\-()]/g, '');
+  function validate() {
+    const e = {};
+    const cust = info.cust.trim().toUpperCase();
+    if (!cust) e.cust = '請輸入毓秀堂客戶編號。';
+    else if (!/^[A-Z0-9\-_]{2,20}$/.test(cust)) e.cust = '毓秀堂客戶編號只能是英文字母、數字或連字號。';
+    if (!info.name.trim()) e.name = '請輸入收件人。';
+    const ph = cleanPhone(info.phone);
+    if (!ph) e.phone = '請輸入手機號碼。';
+    else if (!/^09\d{8}$/.test(ph)) e.phone = '手機號碼請填 09 開頭的 10 碼數字。';
+    if (!info.addr.trim()) e.addr = '請輸入收件地址。';
+    else if (info.addr.trim().length < 6) e.addr = '地址看起來不完整，請填到門牌號碼。';
+    return e;
+  }
   let currency = 'JPY';
   try { if (localStorage.getItem(STORE + '-cur') === 'TWD') currency = 'TWD'; } catch (e) {}
   let fx = { state: CFG.ORDER_ENDPOINT ? 'loading' : 'none' }; // loading | ok | none
   let sending = false;
   let done = null;
   let submitError = '';
-  let custError = '';
+  let errs = {};
+  let confirming = false; // 送出前的確認畫面
 
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify(cart)); } catch (e) {} };
 
@@ -171,10 +197,12 @@
     if (done) { body.innerHTML = doneHtml(); return; }
     const t = totals();
     if (!t.cases) {
+      confirming = false;
       body.innerHTML = '<p class="o-empty">還沒有選任何商品。在左側品項按「訂購」加入箱數。</p>';
       return;
     }
-    const keepFocus = document.activeElement?.id === 'cust';
+    const focusId = FIELDS.some((f) => f.id === document.activeElement?.id) ? document.activeElement.id : null;
+    if (confirming) { body.innerHTML = confirmHtml(t); body.scrollTop = 0; $('#confirmSend')?.focus(); return; }
     let html = '';
     for (const b of brands) {
       const pb = t.perBrand[b.id];
@@ -209,19 +237,49 @@
     const blocked = closed || !twdReady();
     html += `<p class="o-batch">${batchText()}</p>
     <form id="orderForm" novalidate>
-      <div class="field">
-        <label for="cust">客戶編號</label>
-        <input id="cust" name="cust" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="20" value="${esc(customer)}" ${custError ? 'aria-invalid="true" aria-describedby="custErr"' : 'aria-describedby="custHelp"'}>
-        ${custError ? `<p class="field-err" id="custErr" role="alert">${esc(custError)}</p>` : '<p class="field-help" id="custHelp">毓秀堂提供給您的編號。不確定的話請洽業務。</p>'}
-      </div>
+      ${FIELDS.map(fieldHtml).join('')}
       <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>。</p>
       ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
-      <button class="btn btn-main" type="submit" ${sending || blocked ? 'disabled' : ''}>${sending ? '<span class="spin"></span>送出中' : closed ? '本批已截止收單' : '送出訂單'}</button>
+      <button class="btn btn-main" type="submit" ${sending || blocked ? 'disabled' : ''}>${closed ? '本批已截止收單' : '下一步：確認訂單'}</button>
       ${!closed && !twdReady() ? '<p class="o-note">匯率尚未取得，請稍候或改選日幣付款。</p>' : ''}
       ${CFG.ORDER_ENDPOINT ? '' : '<p class="o-note">目前是測試模式，訂單不會真的送出。</p>'}
     </form>`;
     body.innerHTML = html;
-    if (keepFocus) { const c = $('#cust'); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
+    if (focusId) { const c = $('#' + focusId); c.focus(); try { c.setSelectionRange(c.value.length, c.value.length); } catch (e) {} }
+  }
+
+  function fieldHtml(f) {
+    const err = errs[f.id];
+    const desc = err ? `${f.id}Err` : f.help ? `${f.id}Help` : '';
+    return `<div class="field">
+      <label for="${f.id}">${f.label}<span class="req">必填</span></label>
+      <input id="${f.id}" name="${f.id}" ${f.attrs} required value="${esc(info[f.id])}" ${err ? 'aria-invalid="true"' : ''} ${desc ? `aria-describedby="${desc}"` : ''}>
+      ${err ? `<p class="field-err" id="${f.id}Err" role="alert">${esc(err)}</p>` : f.help ? `<p class="field-help" id="${f.id}Help">${f.help}</p>` : ''}
+    </div>`;
+  }
+
+  function confirmHtml(t) {
+    const showPrice = CFG.SHOW_PRICE !== false;
+    const pay = !showPrice ? '' : currency === 'TWD' && t.twd != null
+      ? `台幣貨款 ${twd(t.twd)}（匯率 ${fx.rate}，以送出當下匯率為準）`
+      : `日幣貨款 ${yen(t.yen)}`;
+    const lines = Object.entries(cart).map(([id, q]) => { const it = byId.get(id); return `<li><span>${esc(brandOf.get(it.brand).name)}｜${esc(it.zh)} ${esc(it.label)}</span><span>${q} 箱</span></li>`; }).join('');
+    return `<div class="confirm">
+      <h3>請確認訂單內容</h3>
+      <p>確認無誤後再按「確認送出」。送出後如需修改，請聯絡業務。</p>
+      <dl class="c-info">
+        <dt>毓秀堂客戶編號</dt><dd>${esc(info.cust.trim().toUpperCase())}</dd>
+        <dt>收件人</dt><dd>${esc(info.name.trim())}</dd>
+        <dt>手機號碼</dt><dd>${esc(cleanPhone(info.phone))}</dd>
+        <dt>地址</dt><dd>${esc(info.addr.trim())}</dd>
+      </dl>
+      <ul class="done-list">${lines}</ul>
+      <p class="c-sum">共 <b>${t.cases} 箱</b>${pay ? `・${esc(pay)}` : ''}${t.grams ? `<br>預估運費 ${twd(t.ship)}（實際依到貨秤重）` : ''}</p>
+      <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>。</p>
+      ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
+      <button class="btn btn-main" type="button" id="confirmSend" ${sending ? 'disabled' : ''}>${sending ? '<span class="spin"></span>送出中' : '確認送出'}</button>
+      <button class="btn btn-ghost" type="button" id="confirmBack" ${sending ? 'disabled' : ''}>返回修改</button>
+    </div>`;
   }
 
   function fxText() {
@@ -245,7 +303,7 @@
       <div class="done-mark">${ICON.check}</div>
       <h3>訂單已送出</h3>
       <p>我們確認供貨後，會通知您${done.currency === 'TWD' ? '台幣' : '日幣'}貨款金額與付款方式。運費於到貨秤重後另行通知。</p>
-      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>客戶編號 ${esc(done.customer)}・共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>預計 ${esc(BATCH.ARRIVE_TEXT)} 到貨` : ''}</div>
+      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>預計 ${esc(BATCH.ARRIVE_TEXT)} 到貨` : ''}</div>
       <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱</span></li>`).join('')}</ul>
       <button class="btn btn-ghost" type="button" id="copyOrder">複製訂單內容</button>
       <button class="btn btn-ghost" type="button" id="newOrder">再下一張訂單</button>
@@ -264,21 +322,32 @@
     const d = new Date(), p = (n) => String(n).padStart(2, '0');
     return `YX${String(d.getFullYear()).slice(2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${Math.floor(Math.random() * 90 + 10)}`;
   }
-  async function submit() {
-    if (sending) return;
+  // 第一步：檢查欄位，通過後進入確認畫面
+  function review() {
     if (isClosed()) { renderOrder(); renderMast(); return; }
     if (!twdReady()) return;
-    const cust = customer.trim().toUpperCase();
-    custError = !cust ? '請輸入客戶編號。' : !/^[A-Z0-9\-_]{2,20}$/.test(cust) ? '客戶編號只能是英文字母、數字或連字號。' : '';
+    errs = validate();
     submitError = '';
-    if (custError) { renderOrder(); $('#cust').focus(); return; }
+    const first = FIELDS.find((f) => errs[f.id]);
+    if (first) { renderOrder(); $('#' + first.id).focus(); return; }
+    confirming = true; renderOrder();
+  }
+  // 第二步：在確認畫面按「確認送出」才真的送出
+  async function submit() {
+    if (sending || !confirming) return;
+    if (isClosed()) { confirming = false; renderOrder(); renderMast(); return; }
+    if (!twdReady()) { confirming = false; renderOrder(); return; }
+    if (Object.keys(validate()).length) { confirming = false; review(); return; }
+    const cust = info.cust.trim().toUpperCase();
+    const name = info.name.trim(), phone = cleanPhone(info.phone), addr = info.addr.trim();
+    submitError = '';
     const t = totals();
     const lines = Object.entries(cart).map(([id, q]) => {
       const it = byId.get(id);
       return { brand: brandOf.get(it.brand).name, sku: it.sku || '', jan: it.jan, name: `${it.zh} ${it.label}`, jp: it.jp, qty: q, casePrice: it.casePrice, subtotal: q * it.casePrice };
     });
     const payload = {
-      orderId: makeOrderId(), customer: cust, items: lines, totalCases: t.cases, totalYen: t.yen,
+      orderId: makeOrderId(), customer: cust, name, phone, addr, items: lines, totalCases: t.cases, totalYen: t.yen,
       currency, rate: currency === 'TWD' ? fx.rate : null, totalTwd: t.twd,
       estKg: Math.round(t.grams / 100) / 10, estShip: t.ship,
     };
@@ -299,10 +368,11 @@
       // 台幣金額以伺服器當下匯率為準（舊版腳本沒有回傳時沿用畫面上的數字）
       const rate = result.rate || payload.rate;
       done = {
-        orderId: payload.orderId, customer: cust, cases: t.cases, yen: t.yen, lines, ship: t.ship,
+        orderId: payload.orderId, customer: cust, name, phone, addr, cases: t.cases, yen: t.yen, lines, ship: t.ship,
         currency, rate, twd: currency === 'TWD' ? (result.totalTwd || toTwd(t.yen, rate)) : null,
       };
-      try { localStorage.setItem(STORE + '-cust', cust); } catch (e) {}
+      try { localStorage.setItem(STORE + '-cust', cust); localStorage.setItem(STORE + '-info', JSON.stringify({ name, phone, addr })); } catch (e) {}
+      confirming = false;
       cart = {}; save(); syncSteppers(); renderBrandStates(); renderBar();
     } catch (e) {
       submitError = /匯率/.test(e.message || '') ? e.message : '訂單沒有送出成功，您選的商品都還在。請檢查網路後再按一次，或直接聯絡業務。';
@@ -311,7 +381,7 @@
     if (done) $('#orderBody').scrollTop = 0;
   }
   function orderText() {
-    return [`毓秀堂訂單 ${done.orderId}`, `客戶編號：${done.customer}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.sku ? '（' + l.sku + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
+    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.sku ? '（' + l.sku + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
       done.ship ? `預估運費 ${twd(done.ship)}（實際依到貨秤重）` : '',
       BATCH.ARRIVE_TEXT ? `預計 ${BATCH.ARRIVE_TEXT} 到貨` : ''].filter(Boolean).join('\n');
   }
@@ -396,6 +466,8 @@
       navigator.clipboard?.writeText(orderText()).then(() => toast('已複製訂單內容'), () => toast('無法複製，請手動截圖'));
       return;
     }
+    if (e.target.closest('#confirmSend')) { submit(); return; }
+    if (e.target.closest('#confirmBack')) { confirming = false; submitError = ''; renderOrder(); $('#cust')?.focus(); return; }
     if (e.target.closest('#newOrder')) { done = null; renderOrder(); if (order.classList.contains('open')) closeOrder(); return; }
     const tab = e.target.closest('.tab');
     if (tab && $('#q').value) { $('#q').value = ''; applySearch(''); }
@@ -405,7 +477,8 @@
     if (inp) setQty(inp.closest('.step').dataset.step, Number(inp.value));
   });
   document.addEventListener('input', (e) => {
-    if (e.target.id === 'cust') { customer = e.target.value; if (custError) { custError = ''; } }
+    const fld = FIELDS.find((f) => f.id === e.target.id);
+    if (fld) { info[fld.id] = e.target.value; if (errs[fld.id]) { delete errs[fld.id]; renderOrder(); } }
     if (e.target.id === 'q') applySearch(e.target.value);
     if (e.target.name === 'cur') {
       currency = e.target.value === 'TWD' ? 'TWD' : 'JPY';
@@ -414,7 +487,7 @@
       $(`input[name="cur"][value="${currency}"]`)?.focus();
     }
   });
-  document.addEventListener('submit', (e) => { if (e.target.id === 'orderForm') { e.preventDefault(); submit(); } });
+  document.addEventListener('submit', (e) => { if (e.target.id === 'orderForm') { e.preventDefault(); review(); } });
   $('#barOpen').addEventListener('click', openOrder);
   $('#orderClose').addEventListener('click', closeOrder);
   scrim.addEventListener('click', closeOrder);

@@ -9,7 +9,7 @@ window.CATALOG = {
    "rule": "mix",
    "min": 5,
    "ruleText": "全品牌混搭滿 5 箱出貨",
-   "extra": "紙袋可加購：小 ¥30／個、大 ¥40／個，需要請於備註告知業務。"
+   "extra": ""
   },
   {
    "id": "kawachi",
@@ -20,7 +20,7 @@ window.CATALOG = {
    "rule": "mix",
    "min": 5,
    "ruleText": "全品牌混搭滿 5 箱出貨",
-   "extra": "紙袋可加購（以 100 個為單位）：小 ¥30／個、大 ¥40／個。"
+   "extra": ""
   },
   {
    "id": "kanazawa",
