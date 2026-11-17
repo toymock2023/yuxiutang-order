@@ -214,6 +214,7 @@
         <input id="cust" name="cust" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="20" value="${esc(customer)}" ${custError ? 'aria-invalid="true" aria-describedby="custErr"' : 'aria-describedby="custHelp"'}>
         ${custError ? `<p class="field-err" id="custErr" role="alert">${esc(custError)}</p>` : '<p class="field-help" id="custHelp">毓秀堂提供給您的編號。不確定的話請洽業務。</p>'}
       </div>
+      <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>。</p>
       ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
       <button class="btn btn-main" type="submit" ${sending || blocked ? 'disabled' : ''}>${sending ? '<span class="spin"></span>送出中' : closed ? '本批已截止收單' : '送出訂單'}</button>
       ${!closed && !twdReady() ? '<p class="o-note">匯率尚未取得，請稍候或改選日幣付款。</p>' : ''}
