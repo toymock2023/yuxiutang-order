@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>毓秀堂｜日本菓子代購 2026 秋冬</title>
+<meta name="description" content="毓秀堂日本菓子批發代購，整箱訂購。中山製菓、河内駿河屋、金澤兼六製菓、風美庵 2026 秋冬商品。">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1f2a52">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+JP:wght@600;900&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#catalog">跳到商品</a>
+
+<header class="mast">
+  <div class="wrap mast-in">
+    <h1>毓秀堂 <span>日本菓子代購　2026 秋冬</span></h1>
+    <p class="mast-lead">批發專用。四個日本菓子品牌、一百零一個品項，全部以箱為單位訂購。</p>
+    <div class="banner">
+      <a href="#nakayama"><img src="img/banner/nakayama.jpg" alt="中山製菓的綜合烘焙餅乾" width="900" height="675" fetchpriority="high"><span>中山製菓</span></a>
+      <a href="#kawachi"><img src="img/banner/kawachi.jpg" alt="河内駿河屋的姫鏡夾心餅與布丁" width="900" height="675"><span>河内駿河屋</span></a>
+      <a href="#kanazawa"><img src="img/banner/kanazawa.jpg" alt="金澤兼六製菓的煎餅與果凍禮盒" width="900" height="675"><span>金澤兼六製菓</span></a>
+      <a href="#fuubian"><img src="img/banner/fuubian.jpg" alt="風美庵的草莓夾心餅乾" width="900" height="675"><span>風美庵</span></a>
+    </div>
+    <ol class="flow">
+      <li><b>選箱數</b>在各品項填入要訂的箱數</li>
+      <li><b>送出訂單</b>輸入客戶編號即可，不需註冊</li>
+      <li><b>付日幣貨款</b>我們確認後通知金額</li>
+      <li><b>付台幣運費</b>到貨秤重後另行通知</li>
+    </ol>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="品牌">
+  <div class="wrap tabs-in">
+    <div class="tabs-list" id="tabs"></div>
+    <label class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+      <span class="vh">搜尋商品</span>
+      <input id="q" type="search" placeholder="搜尋品名、品番" autocomplete="off" enterkeyhint="search">
+    </label>
+  </div>
+</nav>
+
+<div class="wrap layout">
+  <main id="catalog" tabindex="-1"></main>
+
+  <aside class="order" id="order" aria-label="訂單">
+    <div class="order-head">
+      <h2>訂單</h2>
+      <button class="icon-btn order-close" id="orderClose" type="button" aria-label="關閉訂單">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="order-body" id="orderBody"></div>
+  </aside>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>價格為日幣報價（每箱），實際金額與供貨狀況以毓秀堂回覆的確認單為準。賞味期限自製造日起算。</p>
+    <p>商品圖片與說明取自各廠商提供之資料。</p>
+  </div>
+</footer>
+
+<div class="bar" id="bar">
+  <div class="bar-sum"><strong id="barCases">0 箱</strong><span id="barYen">尚未選購</span></div>
+  <button class="btn btn-accent" id="barOpen" type="button">查看訂單</button>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+
+<dialog class="detail" id="detail" aria-labelledby="detailTitle">
+  <button class="icon-btn detail-close" type="button" id="detailClose" aria-label="關閉">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+  </button>
+  <div id="detailBody"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="data/products.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
