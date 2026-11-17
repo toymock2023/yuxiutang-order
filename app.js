@@ -8,15 +8,16 @@
   const $ = (s, r = document) => r.querySelector(s);
   const yen = (n) => '¥' + Math.round(n).toLocaleString('en-US');
   const twd = (n) => 'NT$' + Math.round(n).toLocaleString('en-US');
-  const SHIP = Object.assign({ PER_KG: 205, SMALL_KG: 5, SMALL_FEE: 110 }, CFG.SHIPPING);
+  const SHIP = Object.assign({ PER_KG: 205, SMALL_KG: 5, SMALL_FEE: 110, PACK: 1.1 }, CFG.SHIPPING);
   const BATCH = CFG.BATCH || {};
   const closeAt = BATCH.CLOSE_AT ? new Date(BATCH.CLOSE_AT) : null;
   const isClosed = () => !!closeAt && Date.now() > closeAt.getTime();
-  const boxShip = (it) => Math.ceil((it.weight / 1000) * SHIP.PER_KG);
+  // 預估運費＝（每公斤運費＋未滿 SMALL_KG 的加收）再乘包材費倍數，四捨五入到元
   function shipping(grams) {
     if (!grams) return 0;
     const kg = grams / 1000;
-    return Math.ceil(kg * SHIP.PER_KG) + (kg < SHIP.SMALL_KG ? SHIP.SMALL_FEE : 0);
+    const base = kg * SHIP.PER_KG + (kg < SHIP.SMALL_KG ? SHIP.SMALL_FEE : 0);
+    return Math.round(base * (SHIP.PACK || 1));
   }
   const toTwd = (y, r) => Math.ceil(y * r); // 台幣貨款無條件進位到元
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -35,7 +36,7 @@
   } catch (e) { /* 無法讀取就從空的開始 */ }
   // 訂購資料：客編、收件人、手機、地址（存在本機，下次免重填）
   const FIELDS = [
-    { id: 'cust', label: '毓秀堂客戶編號', attrs: 'type="text" autocomplete="off" autocapitalize="characters" maxlength="20"', help: '毓秀堂提供給您的編號。不確定的話請洽業務。' },
+    { id: 'cust', label: '毓秀堂客戶編號', attrs: 'type="text" autocomplete="off" autocapitalize="characters" maxlength="20"', help: '毓秀堂提供給您的編號。不確定的話請於您的專屬 LINE 群組詢問。' },
     { id: 'name', label: '收件人', attrs: 'type="text" autocomplete="name" maxlength="30"' },
     { id: 'phone', label: '手機號碼', attrs: 'type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0912345678"' },
     { id: 'addr', label: '地址', attrs: 'type="text" autocomplete="street-address" maxlength="120"', help: '請填完整收件地址，含縣市、區與門牌。' },
@@ -113,14 +114,16 @@
     </div>`;
   }
   const perText = (it) => it.perLabel || `${it.per} ${it.series === 'kz-cake' ? '個' : '盒'}`;
+  // 單價的單位：整箱只有一件（個）的用「個」，其餘用「盒」
+  const unitOf = (it) => (/個/.test(it.perLabel || '') || it.series === 'kz-cake' ? '個' : '盒');
   function priceHtml(it) {
     if (CFG.SHOW_PRICE === false) return '<div class="price"></div>';
-    return `<div class="price"><b>${yen(it.casePrice)}</b>／箱<span>單價 ${yen(it.unit)}${it.retail ? '・上代 ' + yen(it.retail) : ''}</span></div>`;
+    return `<div class="price"><b>${yen(it.unit)}</b>／${unitOf(it)}<span>每箱 ${yen(it.casePrice)}${it.retail ? '・上代 ' + yen(it.retail) : ''}</span></div>`;
   }
   function itemHtml(it, solo) {
     const meta = [`每箱 ${perText(it)}`];
     if (it.shelf) meta.push(`<span${it.shelf <= 60 ? ' class="warn"' : ''}>賞味 ${it.shelf} 日</span>`);
-    if (it.weight) meta.push(`箱重 ${(it.weight / 1000).toFixed(1)} kg・運費約 ${twd(boxShip(it))}`);
+    if (it.weight) meta.push(`箱重 約 ${(it.weight / 1000).toFixed(1)} kg`);
     if (it.note) meta.push(`<span class="warn">${esc(it.note)}</span>`);
     return `<li class="item" data-item="${it.id}">
       <button type="button" class="item-img" data-open="${it.id}" aria-label="查看 ${esc(it.zh)} ${esc(it.label)}">
@@ -209,7 +212,7 @@
       if (!pb) continue;
       html += `<div class="o-brand"><h3>${esc(b.name)}<span class="num">${pb.cases} 箱</span></h3>
         ${pb.lines.map(([it, q]) => `<div class="o-line">
-          <div>${esc(it.zh)} ${esc(it.label)}<small>${it.sku ? esc(it.sku) + '・' : ''}${CFG.SHOW_PRICE === false ? '' : yen(it.casePrice) + '／箱・'}<button type="button" class="o-rm" data-rm="${it.id}">移除</button></small></div>
+          <div>${esc(it.zh)} ${esc(it.label)}<small>${it.sku ? esc(it.sku) + '・' : ''}${CFG.SHOW_PRICE === false ? '' : `${yen(it.unit)}／${unitOf(it)}・每箱 ${yen(it.casePrice)}・`}<button type="button" class="o-rm" data-rm="${it.id}">移除</button></small></div>
           <div class="q">${q} 箱${CFG.SHOW_PRICE === false ? '' : `<small>${yen(q * it.casePrice)}</small>`}</div>
         </div>`).join('')}</div>`;
     }
@@ -232,7 +235,7 @@
         ? `<dt class="big-l">預估台幣合計</dt><dd class="big">${twd(twdTotal)}</dd>`
         : `<dt class="big-l">日幣貨款</dt><dd class="big">${yen(t.yen)}</dd>`) : ''}
     </dl>
-    <p class="o-note">運費每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，以台幣支付，實際依到貨秤重。${t.noWeight ? '風美庵尚無箱重資料，未計入預估總重與運費。' : ''}</p>`;
+    <p class="o-note">運費每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，另加一成包材費（已計入預估運費），以台幣支付，實際依到貨秤重。${t.noWeight ? '風美庵尚無箱重資料，未計入預估總重與運費。' : ''}</p>`;
     const closed = isClosed();
     const blocked = closed || !twdReady();
     html += `<p class="o-batch">${batchText()}</p>
@@ -266,7 +269,8 @@
     const lines = Object.entries(cart).map(([id, q]) => { const it = byId.get(id); return `<li><span>${esc(brandOf.get(it.brand).name)}｜${esc(it.zh)} ${esc(it.label)}</span><span>${q} 箱</span></li>`; }).join('');
     return `<div class="confirm">
       <h3>請確認訂單內容</h3>
-      <p>確認無誤後再按「確認送出」。送出後如需修改，請聯絡業務。</p>
+      <p class="c-warn">訂單成立後即開始安排訂購，後續追加訂單恕無法保證合併出貨。請先靜待我們確認訂單內容，後續將由專人於您的專屬 LINE 群組主動聯繫您支付第一階段貨款；如有任何疑問，歡迎隨時於 LINE 群組中詢問。</p>
+      <p>確認無誤後再按「確認送出」。送出後如需修改，請於您的專屬 LINE 群組告訴我們。</p>
       <dl class="c-info">
         <dt>毓秀堂客戶編號</dt><dd>${esc(info.cust.trim().toUpperCase())}</dd>
         <dt>收件人</dt><dd>${esc(info.name.trim())}</dd>
@@ -290,8 +294,8 @@
   function batchText() {
     if (!BATCH.CLOSE_TEXT) return '';
     return isClosed()
-      ? `本批已於 ${esc(BATCH.CLOSE_TEXT)} 截止收單。`
-      : `本批收單至 <b>${esc(BATCH.CLOSE_TEXT)}</b>${BATCH.ARRIVE_TEXT ? `，預計 <b>${esc(BATCH.ARRIVE_TEXT)}</b> 到貨` : ''}。`;
+      ? `優惠表單已於 ${esc(BATCH.CLOSE_TEXT)} 截止。`
+      : `優惠表單截止日期：<b>${esc(BATCH.CLOSE_TEXT)}</b>`;
   }
   function payText(d) {
     if (CFG.SHOW_PRICE === false) return '';
@@ -303,7 +307,7 @@
       <div class="done-mark">${ICON.check}</div>
       <h3>訂單已送出</h3>
       <p>我們確認供貨後，會通知您${done.currency === 'TWD' ? '台幣' : '日幣'}貨款金額與付款方式。運費於到貨秤重後另行通知。</p>
-      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>預計 ${esc(BATCH.ARRIVE_TEXT)} 到貨` : ''}</div>
+      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>下單後預計 ${esc(BATCH.ARRIVE_TEXT)} 到貨` : ''}</div>
       <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱</span></li>`).join('')}</ul>
       <button class="btn btn-ghost" type="button" id="copyOrder">複製訂單內容</button>
       <button class="btn btn-ghost" type="button" id="newOrder">再下一張訂單</button>
@@ -375,7 +379,7 @@
       confirming = false;
       cart = {}; save(); syncSteppers(); renderBrandStates(); renderBar();
     } catch (e) {
-      submitError = /匯率/.test(e.message || '') ? e.message : '訂單沒有送出成功，您選的商品都還在。請檢查網路後再按一次，或直接聯絡業務。';
+      submitError = /匯率/.test(e.message || '') ? e.message : '訂單沒有送出成功，您選的商品都還在。請檢查網路後再按一次，或於您的專屬 LINE 群組告訴我們。';
     }
     sending = false; renderOrder();
     if (done) $('#orderBody').scrollTop = 0;
@@ -383,7 +387,7 @@
   function orderText() {
     return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.sku ? '（' + l.sku + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
       done.ship ? `預估運費 ${twd(done.ship)}（實際依到貨秤重）` : '',
-      BATCH.ARRIVE_TEXT ? `預計 ${BATCH.ARRIVE_TEXT} 到貨` : ''].filter(Boolean).join('\n');
+      BATCH.ARRIVE_TEXT ? `下單後預計 ${BATCH.ARRIVE_TEXT} 到貨` : ''].filter(Boolean).join('\n');
   }
 
   // ── 商品詳情
@@ -391,11 +395,11 @@
     const it = byId.get(id), b = brandOf.get(it.brand);
     const rows = [
       ['每箱入數', perText(it)],
-      CFG.SHOW_PRICE === false ? null : ['每箱價格', `${yen(it.casePrice)}（單價 ${yen(it.unit)}）`],
+      CFG.SHOW_PRICE === false ? null : ['單價', `${yen(it.unit)}／${unitOf(it)}`],
+      CFG.SHOW_PRICE === false ? null : ['每箱價格', `${yen(it.casePrice)}（${perText(it)}）`],
       it.retail && CFG.SHOW_PRICE !== false ? ['日本上代', yen(it.retail)] : null,
       it.shelf ? ['賞味期限', `製造日起 ${it.shelf} 日`] : null,
-      it.weight ? ['每箱重量', `${(it.weight / 1000).toFixed(2)} kg`] : null,
-      it.weight ? ['每箱運費', `約 ${twd(boxShip(it))}（每公斤 ${twd(SHIP.PER_KG)}）`] : null,
+      it.weight ? ['每箱重量', `約 ${(it.weight / 1000).toFixed(2)} kg`] : null,
       it.sku ? ['品番', it.sku] : null,
       ['JAN', it.jan],
     ].filter(Boolean);
