@@ -77,7 +77,9 @@ img { display: block; max-width: 100%; }
 .batch b { font-weight: 800; }
 .batch-row[data-closed="1"] .batch { background: var(--shu); color: var(--on-kuri); }
 .banner { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.banner a:last-child { grid-column: 1 / -1; aspect-ratio: 2 / 1; }
 .banner a { position: relative; display: block; overflow: hidden; border-radius: 10px; aspect-ratio: 4 / 3; background: var(--kuri-deep); color: var(--on-kuri); text-decoration: none; }
+.banner picture { display: block; width: 100%; height: 100%; }
 .banner img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
 .banner a:hover img, .banner a:focus-visible img { transform: scale(1.05); }
 .banner span { position: absolute; left: 0; bottom: 0; padding: 6px 12px 7px; background: var(--kuri); border-top-right-radius: 10px; font: 600 15px/1.3 var(--serif); letter-spacing: 0.06em; }
@@ -336,8 +338,9 @@ main { min-width: 0; outline: 0; }
   .mast-logo { width: 84px; height: 84px; padding: 10px; border-radius: 16px; }
   .seal { font-size: 16px; padding: 12px 7px; }
   .seal b { font-size: 20px; }
-  .banner { grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 30px; }
-  .banner span { font-size: 17px; padding: 8px 16px 9px; }
+  .banner { grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 30px; }
+  .banner a:last-child { grid-column: auto; aspect-ratio: 4 / 3; }
+  .banner span { font-size: 14px; padding: 6px 10px 7px; }
   .flow { grid-template-columns: repeat(4, 1fr); }
   .flow li, .flow li:nth-child(odd), .flow li:nth-child(even) { padding: 16px 18px 4px 0; border-bottom: 0; border-left: 0; }
   .flow li + li { padding-left: 18px !important; border-left: 1px solid oklch(1 0 0 / 0.18) !important; }
@@ -357,6 +360,7 @@ main { min-width: 0; outline: 0; }
 /* ── 桌機：右側固定訂單 */
 @media (min-width: 1040px) {
   body { padding-bottom: 0; }
+  .banner span { font-size: 16px; padding: 7px 14px 8px; }
   .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 44px; align-items: start; }
   .order { position: sticky; top: calc(var(--tabs-h) + 20px); margin-top: 52px; transform: none; visibility: visible; border-radius: 16px; max-height: calc(100dvh - var(--tabs-h) - 40px); box-shadow: 0 10px 34px oklch(0.2 0.04 45 / 0.1); z-index: 1; padding-bottom: 0; }
   .order-close, .bar, .scrim { display: none !important; }
