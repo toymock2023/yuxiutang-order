@@ -39,7 +39,7 @@
     { id: 'cust', label: '毓秀堂客戶編號', attrs: 'type="text" autocomplete="off" autocapitalize="characters" maxlength="20"', help: '毓秀堂提供給您的編號。不確定的話請於您的專屬 LINE 群組詢問。' },
     { id: 'name', label: '收件人', attrs: 'type="text" autocomplete="name" maxlength="30"' },
     { id: 'phone', label: '手機號碼', attrs: 'type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0912345678"' },
-    { id: 'addr', label: '地址', attrs: 'type="text" autocomplete="street-address" maxlength="120"', help: '請填完整收件地址，含縣市、區與門牌。' },
+    { id: 'addr', label: '地址', attrs: 'type="text" autocomplete="street-address" maxlength="120"', help: '請填完整收件地址，含縣市、區與門牌。（限本島）' },
   ];
   const info = { cust: '', name: '', phone: '', addr: '' };
   try {
@@ -132,7 +132,7 @@
       <div class="item-head">${solo
         ? `<button type="button" class="item-name solo" data-open="${it.id}">${esc(it.label)}</button>`
         : `<button type="button" class="item-name" data-open="${it.id}">${esc(it.zh)}</button><span class="item-label">${esc(it.label)}</span>`}</div>
-      <p class="item-jp">${solo ? '' : esc(it.jp)}${it.sku ? (solo ? '品番 ' : '・') + esc(it.sku) : ''}</p>
+      <p class="item-jp">${solo ? '' : esc(it.jp)}${it.jan ? (solo ? '' : '・') + esc(it.jan) : ''}</p>
       <p class="item-meta">${meta.join('')}</p>
       <div class="item-buy">${priceHtml(it)}${stepper(it)}</div>
     </li>`;
@@ -212,7 +212,7 @@
       if (!pb) continue;
       html += `<div class="o-brand"><h3>${esc(b.name)}<span class="num">${pb.cases} 箱</span></h3>
         ${pb.lines.map(([it, q]) => `<div class="o-line">
-          <div>${esc(it.zh)} ${esc(it.label)}<small>${it.sku ? esc(it.sku) + '・' : ''}${CFG.SHOW_PRICE === false ? '' : `${yen(it.unit)}／${unitOf(it)}・每箱 ${yen(it.casePrice)}・`}<button type="button" class="o-rm" data-rm="${it.id}">移除</button></small></div>
+          <div>${esc(it.zh)} ${esc(it.label)}<small>${it.jan ? esc(it.jan) + '・' : ''}${CFG.SHOW_PRICE === false ? '' : `${yen(it.unit)}／${unitOf(it)}・每箱 ${yen(it.casePrice)}・`}<button type="button" class="o-rm" data-rm="${it.id}">移除</button></small></div>
           <div class="q">${q} 箱${CFG.SHOW_PRICE === false ? '' : `<small>${yen(q * it.casePrice)}</small>`}</div>
         </div>`).join('')}</div>`;
     }
@@ -391,7 +391,7 @@
     if (done) $('#orderBody').scrollTop = 0;
   }
   function orderText() {
-    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.sku ? '（' + l.sku + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
+    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.jan ? '（' + l.jan + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
       done.ship ? `預估運費 ${twd(done.ship)}（實際依到貨秤重）` : '',
       BATCH.ARRIVE_TEXT ? `下單後預計 ${BATCH.ARRIVE_TEXT}到貨` : ''].filter(Boolean).join('\n');
   }
@@ -437,7 +437,7 @@
     setTimeout(() => { ($('#lkCust').value ? $('#lkName') : $('#lkCust')).focus(); }, 40);
   }
   function orderCard(o) {
-    const items = (o.items || []).map((it) => `<li><span>${esc(it.brand)}｜${esc(it.name)}</span><span>${it.qty} 箱</span></li>`).join('');
+    const items = (o.items || []).map((it) => `<li><span>${esc(it.brand)}｜${esc(it.name)}${it.jan ? `<small>${esc(it.jan)}</small>` : ''}</span><span>${it.qty} 箱</span></li>`).join('');
     const pay = o.currency === 'TWD' && o.totalTwd ? `台幣貨款 ${twd(o.totalTwd)}` : `日幣貨款 ${yen(o.totalYen)}`;
     return `<article class="lk-order">
       <div class="lk-head"><b>${esc(o.orderId)}</b><span>${esc(o.time)}</span></div>
