@@ -327,6 +327,9 @@ main { min-width: 0; outline: 0; }
 
 .foot { margin-top: 56px; padding: 24px 0 28px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
 .foot p + p { margin-top: 4px; }
+.foot-notes { display: grid; gap: 5px; margin-top: 2px; padding-left: 1.1em; list-style: disc; }
+.foot-notes li { line-height: 1.65; }
+.foot-notes li::marker { color: var(--momiji); }
 .foot-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font: 600 15px/1.3 var(--serif); color: var(--ink); letter-spacing: 0.06em; }
 .foot-brand img { width: 32px; height: 32px; }
 
