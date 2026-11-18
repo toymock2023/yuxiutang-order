@@ -10,7 +10,7 @@ window.SITE_CONFIG = {
   BATCH: {
     CLOSE_AT: '2026-12-10T23:59:59+08:00',
     CLOSE_TEXT: '2026/12/10（四）',
-    ARRIVE_TEXT: '14～20 天',
+    ARRIVE_TEXT: '20～25 天',
   },
 
   // 台灣運費（台幣）：每公斤單價；訂單總重未滿 SMALL_KG 加收 SMALL_FEE

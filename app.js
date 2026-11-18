@@ -123,7 +123,7 @@
   function itemHtml(it, solo) {
     const meta = [`每箱 ${perText(it)}`];
     if (it.shelf) meta.push(`<span${it.shelf <= 60 ? ' class="warn"' : ''}>賞味 ${it.shelf} 日</span>`);
-    if (it.weight) meta.push(`箱重 約 ${(it.weight / 1000).toFixed(1)} kg`);
+    if (it.weight) meta.push(`箱重 約 ${(it.weight / 1000).toFixed(2)} kg`);
     if (it.note) meta.push(`<span class="warn">${esc(it.note)}</span>`);
     return `<li class="item" data-item="${it.id}">
       <button type="button" class="item-img" data-open="${it.id}" aria-label="查看 ${esc(it.zh)} ${esc(it.label)}">
@@ -293,9 +293,9 @@
   }
   function batchText() {
     if (!BATCH.CLOSE_TEXT) return '';
-    return isClosed()
-      ? `優惠表單已於 ${esc(BATCH.CLOSE_TEXT)} 截止。`
-      : `優惠表單截止日期：<b>${esc(BATCH.CLOSE_TEXT)}</b>`;
+    if (isClosed()) return `優惠表單已於 ${esc(BATCH.CLOSE_TEXT)} 截止。`;
+    const arrive = BATCH.ARRIVE_TEXT ? `<span class="batch-arrive"><span class="batch-sep">・</span>下單後預計 <b>${esc(BATCH.ARRIVE_TEXT)}</b>到貨</span>` : '';
+    return `優惠表單截止日期：<b>${esc(BATCH.CLOSE_TEXT)}</b>${arrive}`;
   }
   function payText(d) {
     if (CFG.SHOW_PRICE === false) return '';
@@ -307,7 +307,7 @@
       <div class="done-mark">${ICON.check}</div>
       <h3>訂單已送出</h3>
       <p>我們確認供貨後，會通知您${done.currency === 'TWD' ? '台幣' : '日幣'}貨款金額與付款方式。運費於到貨秤重後另行通知。</p>
-      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>下單後預計 ${esc(BATCH.ARRIVE_TEXT)} 到貨` : ''}</div>
+      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>下單後預計 ${esc(BATCH.ARRIVE_TEXT)}到貨` : ''}</div>
       <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱</span></li>`).join('')}</ul>
       <button class="btn btn-ghost" type="button" id="copyOrder">複製訂單內容</button>
       <button class="btn btn-ghost" type="button" id="newOrder">再下一張訂單</button>
@@ -387,7 +387,7 @@
   function orderText() {
     return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.sku ? '（' + l.sku + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
       done.ship ? `預估運費 ${twd(done.ship)}（實際依到貨秤重）` : '',
-      BATCH.ARRIVE_TEXT ? `下單後預計 ${BATCH.ARRIVE_TEXT} 到貨` : ''].filter(Boolean).join('\n');
+      BATCH.ARRIVE_TEXT ? `下單後預計 ${BATCH.ARRIVE_TEXT}到貨` : ''].filter(Boolean).join('\n');
   }
 
   // ── 商品詳情

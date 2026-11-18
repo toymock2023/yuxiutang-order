@@ -66,6 +66,12 @@ img { display: block; max-width: 100%; }
 .o-terms b { font-weight: 700; }
 .batch { margin-top: 14px; display: inline-block; padding: 8px 14px; border-radius: 10px; background: var(--momiji); color: var(--on-momiji); font-size: 15px; font-weight: 500; }
 .batch b { font-weight: 800; }
+.batch-arrive { display: inline-block; white-space: nowrap; }
+.batch-sep { margin: 0 8px; opacity: 0.5; }
+@media (max-width: 559px) {
+  .batch-arrive { display: block; margin-top: 2px; }
+  .batch-sep { display: none; }
+}
 .batch[data-closed="1"] { background: var(--shu); color: var(--on-kuri); }
 .banner { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .banner a { position: relative; display: block; overflow: hidden; border-radius: 10px; aspect-ratio: 4 / 3; background: var(--kuri-deep); color: var(--on-kuri); text-decoration: none; }
