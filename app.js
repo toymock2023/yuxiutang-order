@@ -354,7 +354,7 @@
     const t = totals();
     const lines = Object.entries(cart).map(([id, q]) => {
       const it = byId.get(id);
-      return { brand: brandOf.get(it.brand).name, sku: it.sku || '', jan: it.jan, name: `${it.zh} ${it.label}`, jp: it.jp, qty: q, casePrice: it.casePrice, subtotal: q * it.casePrice };
+      return { brand: brandOf.get(it.brand).name, sku: it.sku || '', jan: it.jan, name: `${it.zh} ${it.label}`, jp: it.jp, qty: q, casePrice: it.casePrice, subtotal: q * it.casePrice, kg: it.weight ? Math.round(q * it.weight) / 1000 : 0 };
     });
     const payload = {
       orderId: makeOrderId(), customer: cust, name, phone, addr, items: lines, totalCases: t.cases, totalYen: t.yen,
@@ -437,7 +437,10 @@
     setTimeout(() => { ($('#lkCust').value ? $('#lkName') : $('#lkCust')).focus(); }, 40);
   }
   function orderCard(o) {
-    const items = (o.items || []).map((it) => `<li><span>${esc(it.brand)}｜${esc(it.name)}${it.jan ? `<small>${esc(it.jan)}</small>` : ''}</span><span>${it.qty} 箱</span></li>`).join('');
+    const items = (o.items || []).map((it) => {
+      const tag = it.canceled ? `<em class="lk-tag">已取消${it.note ? '・' + esc(it.note) : ''}</em>` : '';
+      return `<li${it.canceled ? ' class="lk-canceled"' : ''}><span>${esc(it.brand)}｜${esc(it.name)}${tag}${it.jan ? `<small>${esc(it.jan)}</small>` : ''}</span><span>${it.canceled ? '—' : `${it.qty} 箱`}</span></li>`;
+    }).join('');
     const pay = o.currency === 'TWD' && o.totalTwd ? `台幣貨款 ${twd(o.totalTwd)}` : `日幣貨款 ${yen(o.totalYen)}`;
     return `<article class="lk-order">
       <div class="lk-head"><b>${esc(o.orderId)}</b><span>${esc(o.time)}</span></div>

@@ -320,6 +320,9 @@ main { min-width: 0; outline: 0; }
 .lk-items small { display: block; margin-top: 1px; font-size: 11.5px; color: var(--ink-2); letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
 .lk-sum { margin-top: 10px; font-size: 13.5px; font-weight: 700; }
 .lk-sum small { display: block; font-weight: 400; color: var(--ink-2); }
+/* 已取消的品項：品名劃線、右邊數量顯示「—」；標籤用 inline-block 才不會被劃到 */
+.lk-items li.lk-canceled > span:first-child { text-decoration: line-through; color: var(--ink-2); }
+.lk-items .lk-tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; font-size: 11px; font-style: normal; letter-spacing: 0.02em; color: var(--shu); background: var(--shu-soft); text-decoration: none; vertical-align: 1px; }
 .lk-meta { margin-top: 6px; font-size: 12.5px; color: var(--ink-2); line-height: 1.55; }
 
 .toast { position: fixed; left: 50%; bottom: calc(var(--bar-h) + 16px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); z-index: 80; background: var(--ink); color: var(--on-kuri); padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.3s var(--ease); max-width: calc(100vw - 32px); text-align: center; }
