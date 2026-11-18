@@ -241,7 +241,7 @@
     html += `<div class="batch-row o-batch">${batchText()}</div>
     <form id="orderForm" novalidate>
       ${FIELDS.map(fieldHtml).join('')}
-      <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>，<b>不計入官網業績</b>。</p>
+      <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>，<b>不計入官網業績</b>；<b>不提供紙袋</b>。</p>
       ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
       <button class="btn btn-main" type="submit" ${sending || blocked ? 'disabled' : ''}>${closed ? '本批已截止收單' : '下一步：確認訂單'}</button>
       ${!closed && !twdReady() ? '<p class="o-note">匯率尚未取得，請稍候或改選日幣付款。</p>' : ''}
@@ -285,7 +285,7 @@
         <dt>地址</dt><dd>${esc(info.addr.trim())}</dd>
       </dl>
       <p class="c-sum">共 <b>${t.cases} 箱</b>${brandSum ? `（${brandSum}）` : ''}${pay ? `・${esc(pay)}` : ''}${t.grams ? `<br>預估運費 ${twd(t.ship)}（到貨秤重後結算）` : ''}</p>
-      <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>，<b>不計入官網業績</b>。</p>
+      <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>，<b>不計入官網業績</b>；<b>不提供紙袋</b>。</p>
       ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
       <button class="btn btn-main" type="button" id="confirmSend" ${sending ? 'disabled' : ''}>${sending ? '<span class="spin"></span>送出中' : '確認送出'}</button>
       <button class="btn btn-ghost" type="button" id="confirmBack" ${sending ? 'disabled' : ''}>返回修改</button>
