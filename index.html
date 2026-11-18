@@ -33,6 +33,9 @@
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>無中文標籤</li>
     </ul>
     <div class="batch-row" id="batch" role="status" hidden></div>
+    <button class="lookup-open" type="button" id="openLookup">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>查詢我的訂單
+    </button>
     <div class="banner">
       <a href="#nakayama"><img src="img/banner/nakayama.jpg" alt="中山製菓的綜合烘焙餅乾" width="900" height="675" fetchpriority="high"><span>中山製菓</span></a>
       <a href="#kawachi"><img src="img/banner/kawachi.jpg" alt="河内駿河屋的姫鏡夾心餅與布丁" width="900" height="675"><span>河内駿河屋</span></a>
@@ -91,6 +94,29 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
   </button>
   <div id="detailBody"></div>
+</dialog>
+
+<dialog class="detail lookup" id="lookup" aria-labelledby="lookupTitle">
+  <button class="icon-btn detail-close" type="button" id="lookupClose" aria-label="關閉">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+  </button>
+  <div class="lk-body">
+    <h2 id="lookupTitle">查詢我的訂單</h2>
+    <p class="lk-lead">輸入下單時填的客戶編號與收件人姓名，就可以看到自己送出過的訂單。</p>
+    <form id="lookupForm" novalidate>
+      <div class="field">
+        <label for="lkCust">毓秀堂客戶編號<span class="req">必填</span></label>
+        <input id="lkCust" type="text" autocomplete="off" autocapitalize="characters" maxlength="20" required>
+      </div>
+      <div class="field">
+        <label for="lkName">收件人姓名<span class="req">必填</span></label>
+        <input id="lkName" type="text" autocomplete="name" maxlength="30" required>
+      </div>
+      <p class="field-err" id="lkErr" role="alert" hidden></p>
+      <button class="btn btn-main" type="submit" id="lkSubmit">查詢</button>
+    </form>
+    <div id="lkResult" class="lk-result" aria-live="polite"></div>
+  </div>
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

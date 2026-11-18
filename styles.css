@@ -62,6 +62,9 @@ img { display: block; max-width: 100%; }
 .terms { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
 .terms li { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 9px; border: 1px solid oklch(1 0 0 / 0.28); border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--on-kuri); }
 .terms svg { width: 16px; height: 16px; fill: none; stroke: var(--momiji); stroke-width: 2; stroke-linecap: round; }
+.lookup-open { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px 6px 11px; border: 1px solid oklch(1 0 0 / 0.45); border-radius: 999px; background: transparent; color: var(--on-kuri); font-size: 14px; font-weight: 600; transition: background 0.2s, border-color 0.2s, color 0.2s; }
+.lookup-open:hover { background: oklch(1 0 0 / 0.1); border-color: var(--momiji); color: var(--momiji); }
+.lookup-open svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .o-terms { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: var(--kuri-soft); font-size: 13.5px; color: var(--ink); }
 .o-terms b { font-weight: 700; }
 .batch-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
@@ -291,6 +294,26 @@ main { min-width: 0; outline: 0; }
 .d-spec dt { color: var(--ink-2); padding-right: 20px; white-space: nowrap; }
 .d-spec dd { font-variant-numeric: tabular-nums; font-weight: 500; }
 .d-buy { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+/* ── 查詢我的訂單 */
+.lookup { width: min(520px, calc(100vw - 24px)); }
+.lk-body { padding: 16px 22px 26px; }
+.lk-body h2 { font: 900 22px/1.3 var(--serif); padding-right: 44px; }
+.lk-lead { margin-top: 4px; font-size: 14px; color: var(--ink-2); }
+.lk-body .btn-main { margin-top: 18px; width: 100%; }
+.lk-result:not(:empty) { margin-top: 20px; }
+.lk-empty { padding: 14px; border-radius: 10px; background: var(--kuri-soft); font-size: 14px; color: var(--ink-2); }
+.lk-order { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.lk-order + .lk-order { margin-top: 10px; }
+.lk-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lk-head b { font-size: 15px; letter-spacing: 0.02em; }
+.lk-head span { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lk-items { margin-top: 8px; display: grid; gap: 3px; font-size: 13.5px; }
+.lk-items li { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 3px; border-bottom: 1px dashed var(--line); }
+.lk-items li span:last-child { white-space: nowrap; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lk-sum { margin-top: 10px; font-size: 13.5px; font-weight: 700; }
+.lk-sum small { display: block; font-weight: 400; color: var(--ink-2); }
+.lk-meta { margin-top: 6px; font-size: 12.5px; color: var(--ink-2); line-height: 1.55; }
 
 .toast { position: fixed; left: 50%; bottom: calc(var(--bar-h) + 16px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); z-index: 80; background: var(--ink); color: var(--on-kuri); padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.3s var(--ease); max-width: calc(100vw - 32px); text-align: center; }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }

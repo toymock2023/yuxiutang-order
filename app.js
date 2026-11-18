@@ -424,6 +424,55 @@
     $('#detail').showModal();
   }
 
+  // ── 查詢我的訂單（客編＋姓名）
+  const lookup = $('#lookup');
+  let lkBusy = false;
+  function openLookup() {
+    const err = $('#lkErr');
+    err.hidden = true;
+    $('#lkCust').value = info.cust || '';
+    $('#lkName').value = info.name || '';
+    $('#lkResult').innerHTML = '';
+    lookup.showModal();
+    setTimeout(() => { ($('#lkCust').value ? $('#lkName') : $('#lkCust')).focus(); }, 40);
+  }
+  function orderCard(o) {
+    const items = (o.items || []).map((it) => `<li><span>${esc(it.brand)}｜${esc(it.name)}</span><span>${it.qty} 箱</span></li>`).join('');
+    const pay = o.currency === 'TWD' && o.totalTwd ? `台幣貨款 ${twd(o.totalTwd)}` : `日幣貨款 ${yen(o.totalYen)}`;
+    return `<article class="lk-order">
+      <div class="lk-head"><b>${esc(o.orderId)}</b><span>${esc(o.time)}</span></div>
+      <ul class="lk-items">${items}</ul>
+      <p class="lk-sum">共 ${o.cases} 箱・${esc(pay)}${o.ship ? `<small>預估運費 ${twd(o.ship)}（到貨秤重後結算）</small>` : ''}</p>
+      <p class="lk-meta">收件人 ${esc(o.name)}${o.phone ? `・${esc(o.phone)}` : ''}${o.addr ? `<br>${esc(o.addr)}` : ''}</p>
+    </article>`;
+  }
+  async function lookupOrders() {
+    const err = $('#lkErr'), out = $('#lkResult'), btn = $('#lkSubmit');
+    const cust = $('#lkCust').value.trim().toUpperCase();
+    const name = $('#lkName').value.trim();
+    err.hidden = true;
+    if (!cust || !name) { err.textContent = '請輸入客戶編號與收件人姓名。'; err.hidden = false; return; }
+    if (lkBusy) return;
+    if (!CFG.ORDER_ENDPOINT) { out.innerHTML = '<p class="lk-empty">目前是測試模式，無法查詢訂單。</p>'; return; }
+    lkBusy = true; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>查詢中';
+    out.innerHTML = '';
+    try {
+      const qs = new URLSearchParams({ action: 'orders', cust, name }).toString();
+      const res = await fetch(CFG.ORDER_ENDPOINT + '?' + qs);
+      const d = await res.json();
+      if (!d.ok) throw new Error(d.error || '查詢失敗');
+      if (!Array.isArray(d.orders)) throw new Error('NO_LOOKUP');
+      out.innerHTML = d.orders.length
+        ? d.orders.map(orderCard).join('')
+        : '<p class="lk-empty">查不到訂單。請確認客戶編號與姓名是否跟下單時填的完全相同（姓名要一字不差）。</p>';
+    } catch (e) {
+      out.innerHTML = e.message === 'NO_LOOKUP'
+        ? '<p class="lk-empty">查詢功能還沒開通，請稍後再試，或直接在 LINE 群組問我們。</p>'
+        : `<p class="lk-empty">查詢失敗：${esc(e.message || '請檢查網路後再試一次')}</p>`;
+    }
+    lkBusy = false; btn.disabled = false; btn.textContent = '查詢';
+  }
+
   // ── 搜尋
   function applySearch(q) {
     q = q.trim().toLowerCase();
@@ -504,6 +553,10 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && order.classList.contains('open')) closeOrder(); });
   $('#detailClose').addEventListener('click', () => $('#detail').close());
   $('#detail').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+  $('#openLookup').addEventListener('click', openLookup);
+  $('#lookupClose').addEventListener('click', () => lookup.close());
+  lookup.addEventListener('click', (e) => { if (e.target === lookup) lookup.close(); });
+  $('#lookupForm').addEventListener('submit', (e) => { e.preventDefault(); lookupOrders(); });
 
   // 捲動時標示目前品牌
   function spy() {
