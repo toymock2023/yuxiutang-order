@@ -238,7 +238,7 @@
     <p class="o-note">運費每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，另加一成包材費（已計入預估運費），以台幣支付，實際依到貨秤重。${t.noWeight ? '風美庵尚無箱重資料，未計入預估總重與運費。' : ''}</p>`;
     const closed = isClosed();
     const blocked = closed || !twdReady();
-    html += `<p class="o-batch">${batchText()}</p>
+    html += `<div class="batch-row o-batch">${batchText()}</div>
     <form id="orderForm" novalidate>
       ${FIELDS.map(fieldHtml).join('')}
       <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>。</p>
@@ -266,19 +266,25 @@
     const pay = !showPrice ? '' : currency === 'TWD' && t.twd != null
       ? `台幣貨款 ${twd(t.twd)}（匯率 ${fx.rate}，以送出當下匯率為準）`
       : `日幣貨款 ${yen(t.yen)}`;
-    const lines = Object.entries(cart).map(([id, q]) => { const it = byId.get(id); return `<li><span>${esc(brandOf.get(it.brand).name)}｜${esc(it.zh)} ${esc(it.label)}</span><span>${q} 箱</span></li>`; }).join('');
+    // 不再列出逐項明細（上一頁才剛確認過），只留各品牌箱數
+    const brandSum = Object.entries(t.perBrand).map(([id, pb]) => `${esc(brandOf.get(id).name)} ${pb.cases} 箱`).join('・');
     return `<div class="confirm">
       <h3>請確認訂單內容</h3>
-      <p class="c-warn">訂單成立後即開始安排訂購，後續追加訂單恕無法保證合併出貨。請先靜待我們確認訂單內容，後續將由專人於您的專屬 LINE 群組主動聯繫您支付第一階段貨款；如有任何疑問，歡迎隨時於 LINE 群組中詢問。</p>
-      <p>確認無誤後再按「確認送出」。送出後如需修改，請於您的專屬 LINE 群組告訴我們。</p>
+      <div class="c-warn">
+        <p class="c-warn-t">送出後請留意</p>
+        <ul class="c-warn-list">
+          <li>訂單成立後即開始安排訂購，後續追加訂單恕無法保證合併出貨。</li>
+          <li>請先靜待我們確認訂單內容；確認後由專人於您的專屬 LINE 群組聯繫您支付第一階段貨款。</li>
+          <li>送出後如需修改，或任何疑問，都請在 LINE 群組告訴我們。</li>
+        </ul>
+      </div>
       <dl class="c-info">
         <dt>毓秀堂客戶編號</dt><dd>${esc(info.cust.trim().toUpperCase())}</dd>
         <dt>收件人</dt><dd>${esc(info.name.trim())}</dd>
         <dt>手機號碼</dt><dd>${esc(cleanPhone(info.phone))}</dd>
         <dt>地址</dt><dd>${esc(info.addr.trim())}</dd>
       </dl>
-      <ul class="done-list">${lines}</ul>
-      <p class="c-sum">共 <b>${t.cases} 箱</b>${pay ? `・${esc(pay)}` : ''}${t.grams ? `<br>預估運費 ${twd(t.ship)}（實際依到貨秤重）` : ''}</p>
+      <p class="c-sum">共 <b>${t.cases} 箱</b>${brandSum ? `（${brandSum}）` : ''}${pay ? `・${esc(pay)}` : ''}${t.grams ? `<br>預估運費 ${twd(t.ship)}（到貨秤重後結算）` : ''}</p>
       <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>。</p>
       ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
       <button class="btn btn-main" type="button" id="confirmSend" ${sending ? 'disabled' : ''}>${sending ? '<span class="spin"></span>送出中' : '確認送出'}</button>
@@ -293,9 +299,9 @@
   }
   function batchText() {
     if (!BATCH.CLOSE_TEXT) return '';
-    if (isClosed()) return `優惠表單已於 ${esc(BATCH.CLOSE_TEXT)} 截止。`;
-    const arrive = BATCH.ARRIVE_TEXT ? `<span class="batch-arrive"><span class="batch-sep">・</span>下單後預計 <b>${esc(BATCH.ARRIVE_TEXT)}</b>到貨</span>` : '';
-    return `優惠表單截止日期：<b>${esc(BATCH.CLOSE_TEXT)}</b>${arrive}`;
+    if (isClosed()) return `<span class="batch">優惠表單已於 <b>${esc(BATCH.CLOSE_TEXT)}</b> 截止。</span>`;
+    const arrive = BATCH.ARRIVE_TEXT ? `<span class="batch">下單後預計 <b>${esc(BATCH.ARRIVE_TEXT)}</b>到貨</span>` : '';
+    return `<span class="batch">優惠表單截止日期：<b>${esc(BATCH.CLOSE_TEXT)}</b></span>${arrive}`;
   }
   function payText(d) {
     if (CFG.SHOW_PRICE === false) return '';
