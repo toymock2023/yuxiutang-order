@@ -216,7 +216,7 @@
           <div class="q">${q} 箱${CFG.SHOW_PRICE === false ? '' : `<small>${yen(q * it.casePrice)}</small>`}</div>
         </div>`).join('')}</div>`;
     }
-    const kg = (t.grams / 1000).toFixed(1);
+    const kg = (t.grams / 1000).toFixed(2);
     const small = t.grams && t.grams < SHIP.SMALL_KG * 1000;
     const showPrice = CFG.SHOW_PRICE !== false;
     const twdTotal = t.twd != null ? t.twd + t.ship : null;
@@ -359,7 +359,7 @@
     const payload = {
       orderId: makeOrderId(), customer: cust, name, phone, addr, items: lines, totalCases: t.cases, totalYen: t.yen,
       currency, rate: currency === 'TWD' ? fx.rate : null, totalTwd: t.twd,
-      estKg: Math.round(t.grams / 100) / 10, estShip: t.ship,
+      estKg: Math.round(t.grams / 10) / 100, estShip: t.ship,
     };
     let result = {};
     sending = true; renderOrder();
