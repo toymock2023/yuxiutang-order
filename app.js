@@ -235,7 +235,7 @@
         ? `<dt class="big-l">預估台幣合計</dt><dd class="big">${twd(twdTotal)}</dd>`
         : `<dt class="big-l">日幣貨款</dt><dd class="big">${yen(t.yen)}</dd>`) : ''}
     </dl>
-    <p class="o-note">運費每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，另加一成包材費（已計入預估運費），以台幣支付，實際依到貨秤重。${t.noWeight ? '風美庵尚無箱重資料，未計入預估總重與運費。' : ''}</p>`;
+    <p class="o-note">運費每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，另加一成包材費（已計入預估運費），以台幣支付，實際依到貨秤重。${t.noWeight ? '部分品項尚無箱重資料，未計入預估總重與運費。' : ''}</p>`;
     const closed = isClosed();
     const blocked = closed || !twdReady();
     html += `<div class="batch-row o-batch">${batchText()}</div>
