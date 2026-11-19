@@ -223,22 +223,33 @@
     const small = t.grams && t.grams < SHIP.SMALL_KG * 1000;
     const showPrice = CFG.SHOW_PRICE !== false;
     const twdTotal = t.twd != null ? t.twd + t.ship : null;
+    // 兩階段付款：貨款等 LINE 通知，運費物流秤重後才收。金額一律分開列，不做成一個「合計」。
+    const useTwd = t.twd != null;
+    const payLabel = useTwd ? '台幣貨款' : '日幣貨款';
+    const payNow = useTwd ? twd(t.twd) : yen(t.yen);
+    const payAlt = useTwd ? `日幣 ${yen(t.yen)}` : '';
+    const shipText = t.grams ? twd(t.ship) : '待物流秤重';
     html += `<fieldset class="cur">
       <legend>付款幣別</legend>
       <label><input type="radio" name="cur" value="JPY" ${currency === 'JPY' ? 'checked' : ''}><span>日幣</span></label>
       <label><input type="radio" name="cur" value="TWD" ${currency === 'TWD' ? 'checked' : ''} ${fx.state === 'none' ? 'disabled' : ''}><span>台幣</span></label>
     </fieldset>
     <p class="fx">${fxText()}</p>
-    <dl class="o-total">
-      <dt>總箱數</dt><dd>${t.cases} 箱</dd>
-      <dt>預估總重</dt><dd>約 ${kg} kg${t.noWeight ? '＋' : ''}</dd>
-      ${showPrice && t.twd != null ? `<dt>日幣貨款</dt><dd>${yen(t.yen)}</dd><dt>台幣貨款</dt><dd>${twd(t.twd)}</dd>` : ''}
-      <dt>預估運費</dt><dd>${t.grams ? twd(t.ship) : '待秤重'}</dd>
-      ${showPrice ? (twdTotal != null
-        ? `<dt class="big-l">預估台幣合計</dt><dd class="big">${twd(twdTotal)}</dd>`
-        : `<dt class="big-l">日幣貨款</dt><dd class="big">${yen(t.yen)}</dd>`) : ''}
-    </dl>
-    <p class="o-note">運費每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，以台幣支付，實際依到貨秤重計收（含紙箱與包材）。${t.noWeight ? '部分品項尚無箱重資料，未計入預估總重與運費。' : ''}</p>`;
+    <div class="o-total">
+      <div class="ot-line"><span>總箱數</span><b>${t.cases} 箱</b></div>
+      <div class="ot-line"><span>預估總重</span><b>約 ${kg} kg${t.noWeight ? '＋' : ''}</b></div>
+    </div>
+    ${showPrice ? `
+    <div class="pay-step">
+      <p class="pay-step-h">第一階段・待 LINE 通知付款</p>
+      <div class="ot-line"><span>${payLabel}${payAlt ? `（${payAlt}）` : ''}</span><b class="big">${payNow}</b></div>
+    </div>
+    <div class="pay-step">
+      <p class="pay-step-h">第二階段・物流秤重後付款</p>
+      <div class="ot-line"><span>運費（預估）</span><b>${shipText}</b></div>
+      <p class="pay-note">每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，以台幣支付，實際依物流秤重計收（含紙箱與包材）。${t.noWeight ? '部分品項尚無箱重資料，未計入預估總重與運費。' : ''}</p>
+    </div>
+    ${twdTotal != null && t.grams ? `<div class="pay-total"><span>兩筆合計（預估）</span><b>${twd(twdTotal)}</b></div>` : ''}` : ''}`;
     const closed = isClosed();
     const blocked = closed || !twdReady();
     html += `<div class="batch-row o-batch">${batchText()}</div>
@@ -266,9 +277,11 @@
 
   function confirmHtml(t) {
     const showPrice = CFG.SHOW_PRICE !== false;
-    const pay = !showPrice ? '' : currency === 'TWD' && t.twd != null
-      ? `台幣貨款 ${twd(t.twd)}（匯率 ${fx.rate}，以送出當下匯率為準）`
-      : `日幣貨款 ${yen(t.yen)}`;
+    const useTwd = t.twd != null;
+    const payLabel = useTwd ? '台幣貨款' : '日幣貨款';
+    const payNow = useTwd ? twd(t.twd) : yen(t.yen);
+    const rateHint = useTwd ? `（匯率 ${fx.rate}，以送出當下為準）` : '';
+    const shipText = t.grams ? twd(t.ship) : '待物流秤重';
     // 不再列出逐項明細（上一頁才剛確認過），只留各品牌箱數
     const brandSum = Object.entries(t.perBrand).map(([id, pb]) => `${esc(brandOf.get(id).name)} ${pb.cases} 箱`).join('・');
     return `<div class="confirm">
@@ -287,7 +300,17 @@
         <dt>手機號碼</dt><dd>${esc(cleanPhone(info.phone))}</dd>
         <dt>地址</dt><dd>${esc(info.addr.trim())}</dd>
       </dl>
-      <p class="c-sum">共 <b>${t.cases} 箱</b>${brandSum ? `（${brandSum}）` : ''}${pay ? `・${esc(pay)}` : ''}${t.grams ? `<br>預估運費 ${twd(t.ship)}（到貨秤重後結算）` : ''}</p>
+      <p class="c-sum">共 <b>${t.cases} 箱</b>${brandSum ? `（${brandSum}）` : ''}</p>
+      ${showPrice ? `<div class="c-pay">
+        <div class="pay-step">
+          <p class="pay-step-h">第一階段・待 LINE 通知付款</p>
+          <div class="ot-line"><span>${payLabel}${rateHint}</span><b class="big">${payNow}</b></div>
+        </div>
+        <div class="pay-step">
+          <p class="pay-step-h">第二階段・物流秤重後付款</p>
+          <div class="ot-line"><span>運費（預估）</span><b>${shipText}</b></div>
+        </div>
+      </div>` : ''}
       <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>，<b>不計入官網業績</b>；<b>不提供紙袋</b>。</p>
       ${submitError ? `<p class="field-err" role="alert">${esc(submitError)}</p>` : ''}
       <button class="btn btn-main" type="button" id="confirmSend" ${sending ? 'disabled' : ''}>${sending ? '<span class="spin"></span>送出中' : '確認送出'}</button>
@@ -312,11 +335,24 @@
   }
 
   function doneHtml() {
+    const useTwd = done.currency === 'TWD' && done.twd != null;
+    const payLabel = useTwd ? '台幣貨款' : '日幣貨款';
+    const payNow = useTwd ? twd(done.twd) : yen(done.yen);
     return `<div class="done">
       <div class="done-mark">${ICON.check}</div>
       <h3>訂單已送出</h3>
-      <p>我們確認供貨後，會通知您${done.currency === 'TWD' ? '台幣' : '日幣'}貨款金額與付款方式。運費於到貨秤重後另行通知。</p>
-      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>下單後預計 ${esc(BATCH.ARRIVE_TEXT)}到貨` : ''}</div>
+      <p>我們確認供貨後，會通知您${done.currency === 'TWD' ? '台幣' : '日幣'}貨款金額與付款方式。運費於物流秤重後另行通知。</p>
+      <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${BATCH.ARRIVE_TEXT ? `<br>下單後預計 ${esc(BATCH.ARRIVE_TEXT)}到貨` : ''}</div>
+      ${CFG.SHOW_PRICE === false ? '' : `<div class="c-pay">
+        <div class="pay-step">
+          <p class="pay-step-h">第一階段・待 LINE 通知付款</p>
+          <div class="ot-line"><span>${payLabel}</span><b class="big">${payNow}</b></div>
+        </div>
+        ${done.ship ? `<div class="pay-step">
+          <p class="pay-step-h">第二階段・物流秤重後付款</p>
+          <div class="ot-line"><span>運費（預估）</span><b>${twd(done.ship)}</b></div>
+        </div>` : ''}
+      </div>`}
       <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱${l.per ? `<small>共 ${l.qty * l.per} ${esc(l.unit)}</small>` : ''}</span></li>`).join('')}</ul>
       <button class="btn btn-ghost" type="button" id="copyOrder">複製訂單內容</button>
       <button class="btn btn-ghost" type="button" id="newOrder">再下一張訂單</button>
@@ -394,8 +430,9 @@
     if (done) $('#orderBody').scrollTop = 0;
   }
   function orderText() {
-    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.jan ? '（' + l.jan + '）' : ''} × ${l.qty} 箱${l.per ? `（共 ${l.qty * l.per} ${l.unit}）` : ''}`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
-      done.ship ? `預估運費 ${twd(done.ship)}（實際依到貨秤重）` : '',
+    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.jan ? '（' + l.jan + '）' : ''} × ${l.qty} 箱${l.per ? `（共 ${l.qty * l.per} ${l.unit}）` : ''}`), `共 ${done.cases} 箱`,
+      CFG.SHOW_PRICE === false ? '' : `第一階段・待 LINE 通知付款：${payText(done)}`,
+      done.ship ? `第二階段・物流秤重後付款：預估運費 ${twd(done.ship)}（實際依物流秤重）` : '',
       BATCH.ARRIVE_TEXT ? `下單後預計 ${BATCH.ARRIVE_TEXT}到貨` : ''].filter(Boolean).join('\n');
   }
 
@@ -456,7 +493,7 @@
     return `<article class="lk-order">
       <div class="lk-head"><b>${esc(o.orderId)}</b><span>${esc(o.time)}</span></div>
       <ul class="lk-items">${items}</ul>
-      <p class="lk-sum">共 ${o.cases} 箱・${esc(pay)}${o.ship ? `<small>預估運費 ${twd(o.ship)}（到貨秤重後結算）</small>` : ''}</p>
+      <p class="lk-sum">共 ${o.cases} 箱・${esc(pay)}${o.ship ? `<small>預估運費 ${twd(o.ship)}（物流秤重後結算）</small>` : ''}</p>
       <p class="lk-meta">收件人 ${esc(o.name)}${o.phone ? `・${esc(o.phone)}` : ''}${o.addr ? `<br>${esc(o.addr)}` : ''}</p>
     </article>`;
   }
