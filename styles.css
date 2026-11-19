@@ -203,6 +203,24 @@ main { min-width: 0; outline: 0; }
 .pay-step { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
 .pay-step-h { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--shu); letter-spacing: 0.02em; }
 .pay-note { margin: 6px 0 0; font-size: 11.5px; color: var(--ink-2); line-height: 1.55; }
+/* 運費「預估」旁的小驚嘆號：圖示 15px，但點擊區擴大到 30px */
+.info-btn { position: relative; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 4px; padding: 0; border: 0; background: none; color: var(--ink-2); vertical-align: -2px; cursor: pointer; }
+.info-btn::after { content: ''; position: absolute; inset: -8px; }
+.info-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; }
+.info-btn:hover, .info-btn:focus-visible { color: var(--shu); }
+/* 運費預估說明：小視窗 */
+.mini { border: 0; padding: 0; border-radius: 16px; width: min(400px, calc(100vw - 32px)); max-height: 86dvh; overflow: auto; color: var(--ink); background: var(--surface); box-shadow: 0 24px 70px oklch(0.2 0.04 45 / 0.35); }
+.mini::backdrop { background: oklch(0.17 0.03 45 / 0.55); }
+.mini[open] { animation: rise 0.3s var(--ease); }
+.mini-body { padding: 10px 18px 20px; }
+.mini-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mini-head h2 { font: 900 17px/1.4 var(--serif); }
+.mini-head .icon-btn { flex: none; width: 36px; height: 36px; margin-right: -6px; }
+.mini-head .icon-btn svg { width: 19px; height: 19px; }
+.mini-list { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.mini-list li { position: relative; padding-left: 13px; font-size: 13px; line-height: 1.7; color: var(--ink-2); }
+.mini-list li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 4px; height: 4px; border-radius: 50%; background: var(--shu); }
+.mini-list b { display: block; color: var(--ink); font-size: 13px; font-weight: 700; line-height: 1.5; }
 .pay-total { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-2); }
 .pay-total b { font-weight: 500; font-variant-numeric: tabular-nums; }
 .c-pay { margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--ink); }
@@ -295,8 +313,14 @@ main { min-width: 0; outline: 0; }
 .detail[open] { animation: rise 0.35s var(--ease); }
 @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(0.98); } }
 .detail-close { position: sticky; top: 8px; margin: 8px 8px -52px auto; background: var(--surface); z-index: 2; display: grid; }
-.d-img { background: var(--surface); display: grid; place-items: center; padding: 28px 24px 8px; min-height: 180px; }
-.d-img img { max-height: 300px; width: auto; }
+.d-img { background: var(--surface); display: flex; flex-direction: column; align-items: center; padding: 28px 24px 12px; min-height: 180px; }
+.d-img > img { max-height: 300px; width: auto; max-width: 100%; }
+/* 多圖縮圖列：點一下換主圖 */
+.d-thumbs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+.d-thumb { width: 58px; height: 58px; padding: 2px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); transition: border-color 0.18s var(--ease), transform 0.18s var(--ease); }
+.d-thumb:hover { transform: translateY(-2px); }
+.d-thumb.on { border-color: var(--momiji-deep); box-shadow: 0 0 0 2px oklch(0.63 0.16 46 / 0.18); }
+.d-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
 .d-body { padding: 12px 22px 24px; }
 .d-brand { font-size: 13px; color: var(--ink-2); font-weight: 500; }
 .d-body h2 { font: 900 22px/1.35 var(--serif); margin-top: 2px; }

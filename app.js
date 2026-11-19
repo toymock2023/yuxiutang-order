@@ -29,6 +29,8 @@
     check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
     warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/></svg>',
   };
+  // 運費「預估」旁的小驚嘆號，點了開說明視窗（視窗本體在 index.html 的 #shipInfo）
+  const infoBtn = (id, label) => `<button type="button" class="info-btn" data-info="${id}" aria-label="${label}" title="${label}">${ICON.warn}</button>`;
 
   // ── 狀態
   let cart = {};
@@ -246,7 +248,7 @@
     </div>
     <div class="pay-step">
       <p class="pay-step-h">第二階段・物流秤重後付款</p>
-      <div class="ot-line"><span>運費（預估）</span><b>${shipText}</b></div>
+      <div class="ot-line"><span>運費（預估）${infoBtn('shipInfo', '運費預估說明')}</span><b>${shipText}</b></div>
       <p class="pay-note">每公斤 ${twd(SHIP.PER_KG)}${small ? `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}（已計入）` : `，未滿 ${SHIP.SMALL_KG} kg 加收 ${twd(SHIP.SMALL_FEE)}`}，以台幣支付，實際依物流秤重計收（含紙箱與包材）。${t.noWeight ? '部分品項尚無箱重資料，未計入預估總重與運費。' : ''}</p>
     </div>
     ${twdTotal != null && t.grams ? `<div class="pay-total"><span>兩筆合計（預估）</span><b>${twd(twdTotal)}</b></div>` : ''}` : ''}`;
@@ -308,7 +310,7 @@
         </div>
         <div class="pay-step">
           <p class="pay-step-h">第二階段・物流秤重後付款</p>
-          <div class="ot-line"><span>運費（預估）</span><b>${shipText}</b></div>
+          <div class="ot-line"><span>運費（預估）${infoBtn('shipInfo', '運費預估說明')}</span><b>${shipText}</b></div>
         </div>
       </div>` : ''}
       <p class="o-terms">提醒：商品<b>無發票</b>、<b>無中文標籤</b>，<b>不計入官網業績</b>；<b>不提供紙袋</b>。</p>
@@ -350,7 +352,7 @@
         </div>
         ${done.ship ? `<div class="pay-step">
           <p class="pay-step-h">第二階段・物流秤重後付款</p>
-          <div class="ot-line"><span>運費（預估）</span><b>${twd(done.ship)}</b></div>
+          <div class="ot-line"><span>運費（預估）${infoBtn('shipInfo', '運費預估說明')}</span><b>${twd(done.ship)}</b></div>
         </div>` : ''}
       </div>`}
       <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱${l.per ? `<small>共 ${l.qty * l.per} ${esc(l.unit)}</small>` : ''}</span></li>`).join('')}</ul>
@@ -449,7 +451,10 @@
       it.sku ? ['品番', it.sku] : null,
       ['JAN', it.jan],
     ].filter(Boolean);
-    $('#detailBody').innerHTML = `<div class="d-img"><img src="${it.img}" alt="${esc(it.zh)} ${esc(it.label)}" width="${it.iw}" height="${it.ih}" style="width:${Math.min(it.iw * 1.6, 420)}px"></div>
+    const imgs = it.images && it.images.length ? it.images : [it.img];
+    const alt = `${esc(it.zh)} ${esc(it.label)}`;
+    const gallery = imgs.length > 1 ? `<div class="d-thumbs" role="tablist" aria-label="商品圖片">${imgs.map((src, i) => `<button type="button" class="d-thumb${i === 0 ? ' on' : ''}" data-src="${src}" aria-label="第 ${i + 1} 張"><img src="${src}" alt="" loading="lazy"></button>`).join('')}</div>` : '';
+    $('#detailBody').innerHTML = `<div class="d-img"><img id="dMain" src="${imgs[0]}" alt="${alt}" width="${it.iw}" height="${it.ih}">${gallery}</div>
       <div class="d-body">
         <p class="d-brand">${esc(b.name)}</p>
         <h2 id="detailTitle">${esc(it.zh)} ${esc(it.label)}</h2>
@@ -567,10 +572,22 @@
   document.addEventListener('click', (e) => {
     const stepBtn = e.target.closest('.step button');
     if (stepBtn) { const id = stepBtn.closest('.step').dataset.step; setQty(id, (cart[id] || 0) + Number(stepBtn.dataset.d)); return; }
+    const thumb = e.target.closest('.d-thumb');
+    if (thumb) {
+      const main = $('#dMain'), body = $('#detailBody'), src = thumb.dataset.src;
+      if (src && main) {
+        main.src = src;
+        main.alt = `${$('#detailTitle')?.textContent || ''} 商品圖`;
+        body.querySelectorAll('.d-thumb').forEach((b) => b.classList.toggle('on', b === thumb));
+      }
+      return;
+    }
     const open = e.target.closest('[data-open]');
     if (open) { openDetail(open.dataset.open); return; }
     const rm = e.target.closest('[data-rm]');
     if (rm) { setQty(rm.dataset.rm, 0); return; }
+    const info = e.target.closest('[data-info]');
+    if (info) { const dlg = $('#' + info.dataset.info); if (dlg && !dlg.open) dlg.showModal(); return; }
     if (e.target.closest('#clearQ')) { $('#q').value = ''; applySearch(''); return; }
     if (e.target.closest('#copyOrder')) {
       navigator.clipboard?.writeText(orderText()).then(() => toast('已複製訂單內容'), () => toast('無法複製，請手動截圖'));
@@ -608,6 +625,9 @@
   $('#lookupClose').addEventListener('click', () => lookup.close());
   lookup.addEventListener('click', (e) => { if (e.target === lookup) lookup.close(); });
   $('#lookupForm').addEventListener('submit', (e) => { e.preventDefault(); lookupOrders(); });
+  const shipInfo = $('#shipInfo');
+  $('#shipInfoClose').addEventListener('click', () => shipInfo.close());
+  shipInfo.addEventListener('click', (e) => { if (e.target === shipInfo) shipInfo.close(); });
 
   // 捲動時標示目前品牌
   function spy() {
