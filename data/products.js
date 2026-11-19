@@ -344,7 +344,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 303,
    "images": [
-    "img/p/KS-10.jpg"
+    "img/p/KS-10.jpg",
+    "img/p/KS-10-2.jpg",
+    "img/p/KS-10-3.jpg"
    ]
   },
   {
@@ -373,7 +375,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 303,
    "images": [
-    "img/p/KS-20.jpg"
+    "img/p/KS-20.jpg",
+    "img/p/KS-20-2.jpg",
+    "img/p/KS-20-3.jpg"
    ]
   },
   {
@@ -402,7 +406,9 @@ window.CATALOG = {
    "iw": 293,
    "ih": 284,
    "images": [
-    "img/p/MD-15.jpg"
+    "img/p/MD-15.jpg",
+    "img/p/MD-15-2.jpg",
+    "img/p/MD-15-3.jpg"
    ]
   },
   {
@@ -431,7 +437,9 @@ window.CATALOG = {
    "iw": 239,
    "ih": 285,
    "images": [
-    "img/p/MD-20.jpg"
+    "img/p/MD-20.jpg",
+    "img/p/MD-20-2.jpg",
+    "img/p/MD-20-3.jpg"
    ]
   },
   {
@@ -460,7 +468,9 @@ window.CATALOG = {
    "iw": 251,
    "ih": 281,
    "images": [
-    "img/p/FK-15.jpg"
+    "img/p/FK-15.jpg",
+    "img/p/FK-15-2.jpg",
+    "img/p/FK-15-3.jpg"
    ]
   },
   {
@@ -489,7 +499,9 @@ window.CATALOG = {
    "iw": 277,
    "ih": 270,
    "images": [
-    "img/p/FK-20.jpg"
+    "img/p/FK-20.jpg",
+    "img/p/FK-20-2.jpg",
+    "img/p/FK-20-3.jpg"
    ]
   },
   {
@@ -518,7 +530,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 303,
    "images": [
-    "img/p/WK-10.jpg"
+    "img/p/WK-10.jpg",
+    "img/p/WK-10-2.jpg",
+    "img/p/WK-10-3.jpg"
    ]
   },
   {
@@ -547,7 +561,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 303,
    "images": [
-    "img/p/WK-20.jpg"
+    "img/p/WK-20.jpg",
+    "img/p/WK-20-2.jpg",
+    "img/p/WK-20-3.jpg"
    ]
   },
   {
@@ -576,7 +592,9 @@ window.CATALOG = {
    "iw": 275,
    "ih": 275,
    "images": [
-    "img/p/KI-10.jpg"
+    "img/p/KI-10.jpg",
+    "img/p/KI-10-2.jpg",
+    "img/p/KI-10-3.jpg"
    ]
   },
   {
@@ -605,7 +623,9 @@ window.CATALOG = {
    "iw": 275,
    "ih": 275,
    "images": [
-    "img/p/KI-15.jpg"
+    "img/p/KI-15.jpg",
+    "img/p/KI-15-2.jpg",
+    "img/p/KI-15-3.jpg"
    ]
   },
   {
@@ -634,7 +654,9 @@ window.CATALOG = {
    "iw": 275,
    "ih": 275,
    "images": [
-    "img/p/KI-20.jpg"
+    "img/p/KI-20.jpg",
+    "img/p/KI-20-2.jpg",
+    "img/p/KI-20-3.jpg"
    ]
   },
   {
@@ -2664,7 +2686,9 @@ window.CATALOG = {
    "iw": 277,
    "ih": 277,
    "images": [
-    "img/p/4582580112121.jpg"
+    "img/p/4582580112121.jpg",
+    "img/p/4582580112121-2.jpg",
+    "img/p/4582580112121-3.jpg"
    ]
   },
   {
@@ -2693,7 +2717,9 @@ window.CATALOG = {
    "iw": 277,
    "ih": 277,
    "images": [
-    "img/p/4582580112138.jpg"
+    "img/p/4582580112138.jpg",
+    "img/p/4582580112138-2.jpg",
+    "img/p/4582580112138-3.jpg"
    ]
   },
   {
@@ -2722,7 +2748,9 @@ window.CATALOG = {
    "iw": 277,
    "ih": 277,
    "images": [
-    "img/p/4582580112145.jpg"
+    "img/p/4582580112145.jpg",
+    "img/p/4582580112145-2.jpg",
+    "img/p/4582580112145-3.jpg"
    ]
   },
   {
@@ -2751,7 +2779,9 @@ window.CATALOG = {
    "iw": 450,
    "ih": 451,
    "images": [
-    "img/p/4582580110950.jpg"
+    "img/p/4582580110950.jpg",
+    "img/p/4582580110950-2.jpg",
+    "img/p/4582580110950-3.jpg"
    ]
   },
   {
@@ -2780,7 +2810,9 @@ window.CATALOG = {
    "iw": 455,
    "ih": 329,
    "images": [
-    "img/p/4945409007181.jpg"
+    "img/p/4945409007181.jpg",
+    "img/p/4945409007181-2.jpg",
+    "img/p/4945409007181-3.jpg"
    ]
   },
   {
@@ -2809,7 +2841,9 @@ window.CATALOG = {
    "iw": 448,
    "ih": 332,
    "images": [
-    "img/p/4945409007198.jpg"
+    "img/p/4945409007198.jpg",
+    "img/p/4945409007198-2.jpg",
+    "img/p/4945409007198-3.jpg"
    ]
   },
   {
@@ -2838,7 +2872,9 @@ window.CATALOG = {
    "iw": 440,
    "ih": 458,
    "images": [
-    "img/p/4582580112633.jpg"
+    "img/p/4582580112633.jpg",
+    "img/p/4582580112633-2.jpg",
+    "img/p/4582580112633-3.jpg"
    ]
   },
   {
@@ -2867,7 +2903,9 @@ window.CATALOG = {
    "iw": 445,
    "ih": 455,
    "images": [
-    "img/p/4582580112657.jpg"
+    "img/p/4582580112657.jpg",
+    "img/p/4582580112657-2.jpg",
+    "img/p/4582580112657-3.jpg"
    ]
   },
   {
@@ -2896,7 +2934,9 @@ window.CATALOG = {
    "iw": 450,
    "ih": 452,
    "images": [
-    "img/p/4582580112664.jpg"
+    "img/p/4582580112664.jpg",
+    "img/p/4582580112664-2.jpg",
+    "img/p/4582580112664-3.jpg"
    ]
   },
   {
@@ -2925,7 +2965,9 @@ window.CATALOG = {
    "iw": 458,
    "ih": 463,
    "images": [
-    "img/p/4945409007723.jpg"
+    "img/p/4945409007723.jpg",
+    "img/p/4945409007723-2.jpg",
+    "img/p/4945409007723-3.jpg"
    ]
   },
   {
@@ -2954,7 +2996,9 @@ window.CATALOG = {
    "iw": 457,
    "ih": 458,
    "images": [
-    "img/p/4945409007730.jpg"
+    "img/p/4945409007730.jpg",
+    "img/p/4945409007730-2.jpg",
+    "img/p/4945409007730-3.jpg"
    ]
   },
   {
@@ -2983,7 +3027,9 @@ window.CATALOG = {
    "iw": 457,
    "ih": 460,
    "images": [
-    "img/p/4945409005767.jpg"
+    "img/p/4945409005767.jpg",
+    "img/p/4945409005767-2.jpg",
+    "img/p/4945409005767-3.jpg"
    ]
   },
   {
