@@ -289,9 +289,9 @@
       <div class="c-warn">
         <p class="c-warn-t">送出後請留意</p>
         <ul class="c-warn-list">
-          <li>訂單成立後即開始安排訂購，後續追加訂單恕無法保證合併出貨。</li>
-          <li>請先靜待我們確認訂單內容；確認後由專人於您的專屬 LINE 群組聯繫您支付第一階段貨款。</li>
-          <li>送出後如需修改，或任何疑問，都請在 LINE 群組告訴我們。</li>
+          <li>送出後即開始安排訂購，追加訂單不保證<span class="nw">合併出貨</span>。</li>
+          <li>待我們確認後，由專人在 LINE 群組通知您付<span class="nw">第一階段貨款</span>。</li>
+          <li>需修改或有疑問，請在 LINE 群組告訴我們。</li>
         </ul>
       </div>
       <dl class="c-info">
