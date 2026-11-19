@@ -189,7 +189,7 @@ main { min-width: 0; outline: 0; }
 .o-brand h3 span.short { color: var(--shu); }
 .o-line { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 0; font-size: 14px; line-height: 1.45; }
 .o-line small { color: var(--ink-2); font-size: 12.5px; display: block; }
-.o-line small .nw, .lk-items small .nw { white-space: nowrap; }
+.nw { white-space: nowrap; }
 .o-line .q { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .o-line .q small { font-weight: 400; }
 .o-rm { background: none; border: 0; padding: 0; color: var(--ink-2); font-size: 12.5px; text-decoration: underline; text-underline-offset: 2px; }
