@@ -83,7 +83,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 303,
    "images": [
-    "img/p/BCP12.jpg"
+    "img/p/BCP12.jpg",
+    "img/p/BCP12-2.jpg",
+    "img/p/BCP12-3.jpg"
    ]
   },
   {
@@ -112,7 +114,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 302,
    "images": [
-    "img/p/BCP18.jpg"
+    "img/p/BCP18.jpg",
+    "img/p/BCP18-2.jpg",
+    "img/p/BCP18-3.jpg"
    ]
   },
   {
@@ -141,7 +145,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 303,
    "images": [
-    "img/p/NGS-15.jpg"
+    "img/p/NGS-15.jpg",
+    "img/p/NGS-15-2.jpg",
+    "img/p/NGS-15-3.jpg"
    ]
   },
   {
@@ -170,7 +176,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 302,
    "images": [
-    "img/p/NGS-20.jpg"
+    "img/p/NGS-20.jpg",
+    "img/p/NGS-20-2.jpg",
+    "img/p/NGS-20-3.jpg"
    ]
   },
   {
@@ -199,7 +207,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 302,
    "images": [
-    "img/p/NGS-30.jpg"
+    "img/p/NGS-30.jpg",
+    "img/p/NGS-30-2.jpg",
+    "img/p/NGS-30-3.jpg"
    ]
   },
   {
@@ -228,7 +238,9 @@ window.CATALOG = {
    "iw": 303,
    "ih": 302,
    "images": [
-    "img/p/NGS-S40.jpg"
+    "img/p/NGS-S40.jpg",
+    "img/p/NGS-S40-2.jpg",
+    "img/p/NGS-S40-3.jpg"
    ]
   },
   {
