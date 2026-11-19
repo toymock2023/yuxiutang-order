@@ -113,9 +113,10 @@
       <button type="button" class="step-plus" data-d="1" aria-label="增加 ${esc(it.zh)} ${esc(it.label)}">${ICON.plus}<span>訂購</span></button>
     </div>`;
   }
-  const perText = (it) => it.perLabel || `${it.per} ${it.series === 'kz-cake' ? '個' : '盒'}`;
-  // 單價的單位：整箱只有一件（個）的用「個」，其餘用「盒」
-  const unitOf = (it) => (/個/.test(it.perLabel || '') || it.series === 'kz-cake' ? '個' : '盒');
+  // 每箱入數的單位：整箱只裝單件（單入蛋糕）用「個」，其餘用「盒」
+  const unitOf = (it) => (it.series === 'kz-cake' || /個/.test(it.perLabel || '') ? '個' : '盒');
+  // 每箱入數文案：特例（如 Canalce「10 個 × 6 盒」）優先採用 perLabel，否則用「8 盒」
+  const perText = (it) => it.perLabel || `${it.per} ${unitOf(it)}`;
   function priceHtml(it) {
     if (CFG.SHOW_PRICE === false) return '<div class="price"></div>';
     return `<div class="price"><b>${yen(it.unit)}</b>／${unitOf(it)}<span>每箱 ${yen(it.casePrice)}${it.retail ? '・上代 ' + yen(it.retail) : ''}</span></div>`;
@@ -212,8 +213,8 @@
       if (!pb) continue;
       html += `<div class="o-brand"><h3>${esc(b.name)}<span class="num">${pb.cases} 箱</span></h3>
         ${pb.lines.map(([it, q]) => `<div class="o-line">
-          <div>${esc(it.zh)} ${esc(it.label)}<small>${it.jan ? esc(it.jan) + '・' : ''}${CFG.SHOW_PRICE === false ? '' : `${yen(it.unit)}／${unitOf(it)}・每箱 ${yen(it.casePrice)}・`}<button type="button" class="o-rm" data-rm="${it.id}">移除</button></small></div>
-          <div class="q">${q} 箱${CFG.SHOW_PRICE === false ? '' : `<small>${yen(q * it.casePrice)}</small>`}</div>
+          <div>${esc(it.zh)} ${esc(it.label)}<small>${it.jan ? esc(it.jan) + '・' : ''}<span class="nw">每箱 ${esc(perText(it))}</span>・${CFG.SHOW_PRICE === false ? '' : `<span class="nw">${yen(it.unit)}／${unitOf(it)}</span>・<span class="nw">${yen(it.casePrice)}／箱</span>・`}<button type="button" class="o-rm" data-rm="${it.id}">移除</button></small></div>
+          <div class="q">${q} 箱<small class="q-units">共 ${q * it.per} ${unitOf(it)}</small>${CFG.SHOW_PRICE === false ? '' : `<small>${yen(q * it.casePrice)}</small>`}</div>
         </div>`).join('')}</div>`;
     }
     const kg = (t.grams / 1000).toFixed(2);
@@ -314,7 +315,7 @@
       <h3>訂單已送出</h3>
       <p>我們確認供貨後，會通知您${done.currency === 'TWD' ? '台幣' : '日幣'}貨款金額與付款方式。運費於到貨秤重後另行通知。</p>
       <div class="done-no">訂單編號<b>${esc(done.orderId)}</b>毓秀堂客戶編號 ${esc(done.customer)}<br>收件人 ${esc(done.name)}・${esc(done.phone)}<br>${esc(done.addr)}<br>共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '<br>' + esc(payText(done))}${done.ship ? `<br>預估運費 ${twd(done.ship)}` : ''}${BATCH.ARRIVE_TEXT ? `<br>下單後預計 ${esc(BATCH.ARRIVE_TEXT)}到貨` : ''}</div>
-      <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱</span></li>`).join('')}</ul>
+      <ul class="done-list">${done.lines.map((l) => `<li><span>${esc(l.name)}</span><span>${l.qty} 箱${l.per ? `<small>共 ${l.qty * l.per} ${esc(l.unit)}</small>` : ''}</span></li>`).join('')}</ul>
       <button class="btn btn-ghost" type="button" id="copyOrder">複製訂單內容</button>
       <button class="btn btn-ghost" type="button" id="newOrder">再下一張訂單</button>
     </div>`;
@@ -354,7 +355,7 @@
     const t = totals();
     const lines = Object.entries(cart).map(([id, q]) => {
       const it = byId.get(id);
-      return { brand: brandOf.get(it.brand).name, sku: it.sku || '', jan: it.jan, name: `${it.zh} ${it.label}`, jp: it.jp, qty: q, casePrice: it.casePrice, subtotal: q * it.casePrice, kg: it.weight ? Math.round(q * it.weight) / 1000 : 0 };
+      return { brand: brandOf.get(it.brand).name, sku: it.sku || '', jan: it.jan, name: `${it.zh} ${it.label}`, jp: it.jp, qty: q, per: it.per, unit: unitOf(it), casePrice: it.casePrice, subtotal: q * it.casePrice, kg: it.weight ? Math.round(q * it.weight) / 1000 : 0 };
     });
     const payload = {
       orderId: makeOrderId(), customer: cust, name, phone, addr, items: lines, totalCases: t.cases, totalYen: t.yen,
@@ -391,7 +392,7 @@
     if (done) $('#orderBody').scrollTop = 0;
   }
   function orderText() {
-    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.jan ? '（' + l.jan + '）' : ''} × ${l.qty} 箱`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
+    return [`毓秀堂訂單 ${done.orderId}`, `毓秀堂客戶編號：${done.customer}`, `收件人：${done.name}`, `手機號碼：${done.phone}`, `地址：${done.addr}`, ...done.lines.map((l) => `・${l.brand}｜${l.name}${l.jan ? '（' + l.jan + '）' : ''} × ${l.qty} 箱${l.per ? `（共 ${l.qty * l.per} ${l.unit}）` : ''}`), `共 ${done.cases} 箱${CFG.SHOW_PRICE === false ? '' : '，' + payText(done)}`,
       done.ship ? `預估運費 ${twd(done.ship)}（實際依到貨秤重）` : '',
       BATCH.ARRIVE_TEXT ? `下單後預計 ${BATCH.ARRIVE_TEXT}到貨` : ''].filter(Boolean).join('\n');
   }
