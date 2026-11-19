@@ -3,6 +3,8 @@
   const CFG = window.SITE_CONFIG || {};
   const { brands, items } = window.CATALOG;
   const byId = new Map(items.map((i) => [i.id, i]));
+  // 查訂單時後端只回傳 JAN，用它反查本地型錄的每箱入數（不必改後端）
+  const byJan = new Map(items.filter((i) => i.jan).map((i) => [String(i.jan), i]));
   const brandOf = new Map(brands.map((b) => [b.id, b]));
   const STORE = 'yxt-cart-2026aw';
   const $ = (s, r = document) => r.querySelector(s);
@@ -437,10 +439,18 @@
     lookup.showModal();
     setTimeout(() => { ($('#lkCust').value ? $('#lkName') : $('#lkCust')).focus(); }, 40);
   }
+  // 品名裡的「12 入」「18 本」不要在數字與單位之間斷行
+  const nb = (s) => String(s || '').replace(/(\d)\s+(?=[入本枚個袋])/g, '$1\u00A0');
   function orderCard(o) {
     const items = (o.items || []).map((it) => {
       const tag = it.canceled ? `<em class="lk-tag">已取消${it.note ? '・' + esc(it.note) : ''}</em>` : '';
-      return `<li${it.canceled ? ' class="lk-canceled"' : ''}><span>${esc(it.brand)}｜${esc(it.name)}${tag}${it.jan ? `<small>${esc(it.jan)}</small>` : ''}</span><span>${it.canceled ? '—' : `${it.qty} 箱`}</span></li>`;
+      // 舊批次的品項在當前型錄查不到，就只顯示箱數
+      const cat = it.jan ? byJan.get(String(it.jan)) : null;
+      const per = cat && cat.per ? cat.per : 0;
+      // 入數放在小字行，右欄只留箱數，免得把品名擠到折行
+      const perLine = per ? `・<span class="nw">每箱 ${esc(perText(cat))}</span>` : '';
+      const totalLine = per && !it.canceled ? `・<span class="nw">共 ${it.qty * per} ${unitOf(cat)}</span>` : '';
+      return `<li${it.canceled ? ' class="lk-canceled"' : ''}><span>${esc(it.brand)}｜${esc(nb(it.name))}${tag}${it.jan ? `<small>${esc(it.jan)}${perLine}${totalLine}</small>` : ''}</span><span>${it.canceled ? '—' : `${it.qty} 箱`}</span></li>`;
     }).join('');
     const pay = o.currency === 'TWD' && o.totalTwd ? `台幣貨款 ${twd(o.totalTwd)}` : `日幣貨款 ${yen(o.totalYen)}`;
     return `<article class="lk-order">
