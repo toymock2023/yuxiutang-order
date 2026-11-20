@@ -27,7 +27,7 @@
       <h1>毓秀堂 <span>日本菓子代購批發</span></h1>
       <p class="seal"><span class="vh">2026 秋冬</span><span aria-hidden="true">二〇二六</span><b aria-hidden="true">秋冬</b></p>
     </div>
-    <p class="mast-lead">批發專用。五個日本菓子品牌、一百一十二個品項，以箱為單位訂購，1 箱即可下單。國際運費另計。</p>
+    <p class="mast-lead">批發專用。五個日本菓子品牌、一百一十二個品項，以箱為單位訂購，1 箱即可下單。運費依物流實際秤重計收。</p>
     <ul class="terms" aria-label="購買須知">
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>無發票</li>
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>無中文標籤</li>
@@ -42,12 +42,20 @@
       <a href="#fuubian"><img src="img/banner/fuubian.jpg" alt="風美庵的草莓夾心餅乾" width="900" height="675" loading="lazy"><span>風美庵</span></a>
       <a href="#nakajima"><picture><source media="(max-width: 699px)" srcset="img/banner/nakajima-wide.jpg"><img src="img/banner/nakajima.jpg" alt="中島大祥堂的水果大福、果凍與蘋果蛋糕" width="900" height="675" loading="lazy"></picture><span>中島大祥堂</span></a>
     </div>
-    <ol class="flow">
-      <li><b>選箱數</b>在各品項填入要訂的箱數</li>
-      <li><b>送出訂單</b>待確認後由專人在 <span class="nw">LINE 群組</span><span class="nw">通知付款</span></li>
-      <li><b>付貨款</b>日幣或台幣（依下單當下<span class="nw">上海銀行現金匯率</span>）</li>
-      <li><b>付台幣運費</b>每公斤 NT$205，未滿 5 kg 加收 NT$110，依物流秤重計收（含紙箱包材），秤重後通知</li>
-    </ol>
+    <div class="flow-wrap">
+      <div class="flow-head">
+        <h2 class="flow-title">訂購流程</h2>
+        <p class="flow-sub">全程只收兩次款項：先付貨款，貨到物流端秤重後再付運費</p>
+      </div>
+      <ol class="flow">
+        <li><b>選箱數</b><span>以「箱」為單位，1 箱即可下單</span></li>
+        <li class="pay"><b>確認貨況・付貨款 <em>第 1 次</em></b><span>確認後由專人在 <span class="nw">LINE 群組</span>通知，<span class="nw">可付日幣或台幣<button type="button" class="info-btn" data-info="fxInfo" aria-label="台幣匯率說明" title="台幣匯率說明"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/></svg></button></span></li>
+        <li><b>商品到物流端</b><span>先秤重，<span class="nw">還沒送到您家</span></span></li>
+        <li class="pay"><b>秤重後通知・付運費 <em>第 2 次</em></b><span><span class="nw">依實際秤重計收（含紙箱包材）<button type="button" class="info-btn" data-info="rateInfo" aria-label="運費費率說明" title="運費費率說明"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/></svg></button></span></span></li>
+        <li><b>直送到府</b><span>付款後配送到您指定的地址</span></li>
+      </ol>
+      <p class="flow-note"><b>安心保證</b>材積費、國內運費、進口關稅已全數含在內，不會再有第三筆款項</p>
+    </div>
   </div>
 </header>
 
@@ -126,6 +134,34 @@
   </div>
 </dialog>
 
+<dialog class="mini" id="fxInfo" aria-labelledby="fxInfoTitle">
+  <div class="mini-body">
+    <div class="mini-head">
+      <h2 id="fxInfoTitle">台幣匯率說明</h2>
+      <button class="icon-btn" type="button" id="fxInfoClose" aria-label="關閉">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <ul class="mini-list">
+      <li>台幣依照下單時上海銀行現金匯率計算。</li>
+    </ul>
+  </div>
+</dialog>
+
+<dialog class="mini" id="rateInfo" aria-labelledby="rateInfoTitle">
+  <div class="mini-body">
+    <div class="mini-head">
+      <h2 id="rateInfoTitle">運費費率說明</h2>
+      <button class="icon-btn" type="button" id="rateInfoClose" aria-label="關閉">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <ul class="mini-list">
+      <li>每公斤 NT$205，未滿 5 kg 加收 NT$110。</li>
+    </ul>
+  </div>
+</dialog>
+
 <dialog class="mini" id="shipInfo" aria-labelledby="shipInfoTitle">
   <div class="mini-body">
     <div class="mini-head">
@@ -135,6 +171,7 @@
       </button>
     </div>
     <ul class="mini-list">
+      <li><b>費率</b>每公斤 NT$205，未滿 5 kg 加收 NT$110。</li>
       <li><b>重量基準</b>網站標示重量皆為日本原廠提供之箱重（含內容物＋外箱）。</li>
       <li><b>預估計算</b>預估運費為「網站標示重量＋部分高估」，因物流實際秤重時可能額外添加包材。</li>
       <li><b>配送與計費</b>我們已談好盡量以「完整原箱」直接寄送至您指定的地址，但實際仍以物流公司秤重為準。</li>

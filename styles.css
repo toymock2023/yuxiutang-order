@@ -83,12 +83,23 @@ img { display: block; max-width: 100%; }
 .banner img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
 .banner a:hover img, .banner a:focus-visible img { transform: scale(1.05); }
 .banner span { position: absolute; left: 0; bottom: 0; padding: 6px 12px 7px; background: var(--kuri); border-top-right-radius: 10px; font: 600 15px/1.3 var(--serif); letter-spacing: 0.06em; }
-.flow { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 0; counter-reset: s; border-top: 1px solid oklch(1 0 0 / 0.18); }
-.flow li { counter-increment: s; padding: 14px 12px 14px 0; font-size: 13.5px; line-height: 1.5; color: var(--on-kuri-2); border-bottom: 1px solid oklch(1 0 0 / 0.18); }
-.flow li:nth-child(odd) { padding-right: 16px; }
-.flow li:nth-child(even) { padding-left: 16px; border-left: 1px solid oklch(1 0 0 / 0.18); }
-.flow b { display: block; font: 600 17px/1.3 var(--serif); color: var(--on-kuri); margin-bottom: 2px; }
-.flow b::before { content: counter(s); display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 8px; border-radius: 50%; background: var(--momiji); color: var(--on-momiji); font: 700 13px/1 var(--sans); vertical-align: 2px; }
+.flow-wrap { margin-top: 22px; }
+.flow-head { margin-bottom: 12px; }
+.flow-title { font: 600 20px/1.3 var(--serif); color: var(--on-kuri); letter-spacing: .02em; }
+.flow-sub { margin-top: 3px; font-size: 13.5px; line-height: 1.5; color: var(--on-kuri-2); }
+.flow { display: grid; grid-template-columns: 1fr; gap: 8px; counter-reset: s; }
+.flow li { counter-increment: s; padding: 11px 12px; border: 1px solid oklch(1 0 0 / 0.18); border-radius: 10px; background: oklch(1 0 0 / 0.05); font-size: 13px; line-height: 1.55; color: var(--on-kuri-2); }
+.flow li > span { display: block; }
+.flow li.pay { border-color: oklch(0.72 0.15 52 / 0.6); background: oklch(0.72 0.15 52 / 0.12); }
+.flow b { display: block; font: 600 15px/1.35 var(--serif); color: var(--on-kuri); margin-bottom: 3px; }
+.flow li.pay b { color: var(--momiji); }
+.flow b::before { content: counter(s); display: inline-grid; place-items: center; width: 21px; height: 21px; margin-right: 7px; border-radius: 50%; background: oklch(1 0 0 / 0.18); color: var(--on-kuri); font: 700 12px/1 var(--sans); vertical-align: 1px; }
+.flow li.pay b::before { background: var(--momiji); color: var(--on-momiji); }
+.flow em { display: inline-block; margin-left: 3px; padding: 1px 6px; border-radius: 999px; background: var(--momiji); color: var(--on-momiji); font: 700 10px/1.5 var(--sans); vertical-align: 1px; }
+.flow .info-btn { color: var(--on-kuri-2); vertical-align: -3px; }
+.flow .info-btn:hover, .flow .info-btn:focus-visible { color: var(--momiji); }
+.flow-note { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: oklch(0 0 0 / 0.22); font-size: 12.5px; line-height: 1.6; color: var(--on-kuri-2); }
+.flow-note b { display: block; margin-bottom: 1px; font: 700 13px/1.5 var(--sans); color: var(--momiji); }
 
 /* ── 品牌分頁 */
 .tabs { position: sticky; top: 0; z-index: 30; background: var(--kuri-deep); color: var(--on-kuri); }
@@ -381,9 +392,8 @@ main { min-width: 0; outline: 0; }
   .banner { grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 30px; }
   .banner a:last-child { grid-column: auto; aspect-ratio: 4 / 3; }
   .banner span { font-size: 14px; padding: 6px 10px 7px; }
-  .flow { grid-template-columns: repeat(4, 1fr); }
-  .flow li, .flow li:nth-child(odd), .flow li:nth-child(even) { padding: 16px 18px 4px 0; border-bottom: 0; border-left: 0; }
-  .flow li + li { padding-left: 18px !important; border-left: 1px solid oklch(1 0 0 / 0.18) !important; }
+  .flow { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .flow li { padding: 13px 12px; }
   .tabs-list { padding-inline: 16px; }
   .tab { padding: 0 16px; font-size: 16px; }
   .tab::after { left: 16px; right: 16px; }

@@ -628,6 +628,11 @@
   const shipInfo = $('#shipInfo');
   $('#shipInfoClose').addEventListener('click', () => shipInfo.close());
   shipInfo.addEventListener('click', (e) => { if (e.target === shipInfo) shipInfo.close(); });
+  [['fxInfo', 'fxInfoClose'], ['rateInfo', 'rateInfoClose']].forEach(([id, btn]) => {
+    const dlg = $('#' + id);
+    $('#' + btn).addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  });
 
   // 捲動時標示目前品牌
   function spy() {
